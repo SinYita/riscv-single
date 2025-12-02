@@ -1,6 +1,6 @@
 module PC_Adder(a,b,c);
     input[31:0] a,b;
-    ouput[31:0] c;
+    output[31:0] c;
 
-    assign c = a + b;
+    assign c = a + b; // this could be extend to support jump address calculation
 endmodule

@@ -11,7 +11,7 @@ module Control_Unit_Top(Op,RegWrite,ImmSrc,ALUSrc,MemWrite,ResultSrc,Branch,func
 
     wire [1:0]ALUOp;
 
-    Main_Decoder Main_Decoder(
+    Op_Decoder Op_Decoder(
                 .Op(Op),
                 .RegWrite(RegWrite),
                 .ImmSrc(ImmSrc),
