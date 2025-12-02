@@ -1,26 +1,36 @@
+`include "defines.v"
 module ALU_Decoder(ALUOp,funct3,funct7,op,ALUControl);
 
     input [1:0]ALUOp;
     input [2:0]funct3;
     input [6:0]funct7,op;
-    output [2:0]ALUControl;
+    output reg [2:0]ALUControl;
 
-    // Method 1 
-    // assign ALUControl = (ALUOp == 2'b00) ? 3'b000 :
-    //                     (ALUOp == 2'b01) ? 3'b001 :
-    //                     (ALUOp == 2'b10) ? ((funct3 == 3'b000) ? ((({op[5],funct7[5]} == 2'b00) | ({op[5],funct7[5]} == 2'b01) | ({op[5],funct7[5]} == 2'b10)) ? 3'b000 : 3'b001) : 
-    //                                         (funct3 == 3'b010) ? 3'b101 : 
-    //                                         (funct3 == 3'b110) ? 3'b011 : 
-    //                                         (funct3 == 3'b111) ? 3'b010 : 3'b000) :
-    //                                        3'b000;
+    // Combinational decoder: choose ALUControl based on ALUOp and funct fields
+    always @* begin
+        // default
+        ALUControl = `ALU_ADD;
 
-    // Method 2
-    assign ALUControl = (ALUOp == 2'b00) ? 3'b000 :
-                        (ALUOp == 2'b01) ? 3'b001 :
-                        ((ALUOp == 2'b10) & (funct3 == 3'b000) & ({op[5],funct7[5]} == 2'b11)) ? 3'b001 : 
-                        ((ALUOp == 2'b10) & (funct3 == 3'b000) & ({op[5],funct7[5]} != 2'b11)) ? 3'b000 : 
-                        ((ALUOp == 2'b10) & (funct3 == 3'b010)) ? 3'b101 : 
-                        ((ALUOp == 2'b10) & (funct3 == 3'b110)) ? 3'b011 : 
-                        ((ALUOp == 2'b10) & (funct3 == 3'b111)) ? 3'b010 : 
-                                                                  3'b000 ;
+        case (ALUOp)
+            2'b00: begin
+                // Load/Immediate: use ADD to compute address or add immediate
+                ALUControl = `ALU_ADD;
+            end
+            2'b01: begin
+                // Branch: use SUB for comparison (e.g., beq)
+                ALUControl = `ALU_SUB;
+            end
+            2'b10: begin
+                // R-type: decode by funct3/funct7 (and op[5] per original logic)
+                case (funct3)
+                    3'b000: ALUControl = ({op[5], funct7[5]} == 2'b11) ? `ALU_SUB : `ALU_ADD;
+                    3'b010: ALUControl = `ALU_SLT;
+                    3'b110: ALUControl = `ALU_OR;
+                    3'b111: ALUControl = `ALU_AND;
+                    default: ALUControl = `ALU_ADD;
+                endcase
+            end
+            default: ALUControl = `ALU_ADD;
+        endcase
+    end
 endmodule

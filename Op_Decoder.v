@@ -1,23 +1,45 @@
+`include "defines.v"
 module Op_Decoder(Op,RegWrite,ImmSrc,ALUSrc,MemWrite,ResultSrc,Branch,ALUOp);
-    input [6:0]Op;
-    output RegWrite,ALUSrc,MemWrite,ResultSrc,Branch;
-    output [1:0]ImmSrc,ALUOp;
+    input  [6:0] Op;
+    output reg   RegWrite, ALUSrc, MemWrite, ResultSrc, Branch;
+    output reg [1:0] ImmSrc, ALUOp;
 
-    assign RegWrite = (Op == 7'b0000011 | Op == 7'b0110011) ? 1'b1 :
-                                                              1'b0 ;
-    assign ImmSrc = (Op == 7'b0100011) ? 2'b01 : 
-                    (Op == 7'b1100011) ? 2'b10 :    
-                                         2'b00 ;
-    assign ALUSrc = (Op == 7'b0000011 | Op == 7'b0100011) ? 1'b1 :
-                                                            1'b0 ;
-    assign MemWrite = (Op == 7'b0100011) ? 1'b1 :
-                                           1'b0 ;
-    assign ResultSrc = (Op == 7'b0000011) ? 1'b1 :
-                                            1'b0 ;
-    assign Branch = (Op == 7'b1100011) ? 1'b1 :
-                                         1'b0 ;
-    assign ALUOp = (Op == 7'b0110011) ? 2'b10 :
-                   (Op == 7'b1100011) ? 2'b01 :
-                                        2'b00 ;
+    always @* begin
+        // defaults
+        RegWrite  = 1'b0;
+        ImmSrc    = 2'b00;
+        ALUSrc    = 1'b0;
+        MemWrite  = 1'b0;
+        ResultSrc = 1'b0;
+        Branch    = 1'b0;
+        ALUOp     = 2'b00;
 
+        case (Op)
+            OPCODE_LOAD: begin
+                RegWrite  = 1'b1;
+                ALUSrc    = 1'b1;
+                ResultSrc = 1'b1; // load reads from memory
+                ALUOp     = 2'b00;
+                ImmSrc    = 2'b00; // I-type (load)
+            end
+            OPCODE_STORE: begin
+                ALUSrc   = 1'b1;
+                MemWrite = 1'b1;
+                ImmSrc   = 2'b01; // S-type (store)
+            end
+            OPCODE_BRANCH: begin
+                Branch = 1'b1;
+                ALUOp  = 2'b01;
+                ImmSrc = 2'b10; // B-type (branch)
+            end
+            OPCODE_RTYPE: begin
+                RegWrite = 1'b1;
+                ALUSrc   = 1'b0;
+                ALUOp    = 2'b10;
+            end
+            default: begin
+                // keep defaults (easy to extend for JAL/JALR/LUI etc.)
+            end
+        endcase
+    end
 endmodule
