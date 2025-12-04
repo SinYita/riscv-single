@@ -3,12 +3,12 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
     input  Zero;
     input  [31:0] inst;
     output reg RegWrite_E;
-    output reg [2:0] ImmSrc;
-    output reg ALUSrc;
+    output reg [2:0] ImmSrc; // which type of immediate extension
+    output reg ALUSrc; // the second operand
     output reg MemWrite_E;
-    output reg ResultSrc;
-    output reg PCSrc;
-    output reg [2:0] ALUOp;
+    output reg ResultSrc; // ? -> register
+    output reg PCSrc; // Branch or not
+    output reg [2:0] ALUOp; // ALU operation
 
     wire [6:0] Op = inst[6:0];
     wire [2:0] Funct3 = inst[14:12];
