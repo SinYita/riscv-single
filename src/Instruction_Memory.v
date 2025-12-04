@@ -4,7 +4,7 @@ module Instruction_Memory(rst,Address,ReadData);
     output[31:0] ReadData;
 
     reg[31:0] mem[1023:0];
-    assign ReadData = (rst == 1'b0)? 32'b0: mem[Address[31:2]];
+    assign ReadData = (rst == 1'b0)? 32'b0: mem[Address[31:2]]; // shift by 2 to get word address
     initial begin
         $readmemh("memfile.hex",mem);
     end

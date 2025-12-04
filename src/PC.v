@@ -6,7 +6,7 @@ module PC(clk,rst,PC,NPC);
 
     always @(posedge clk or posedge rst) begin
         if (~rst) begin
-            PC <= {32{1'b0}};
+            PC <= 32'h0000_0000;
         end
         else begin
             PC <= NPC;
