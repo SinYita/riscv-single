@@ -1,4 +1,4 @@
-`include "defines.v"
+`include "define.v"
 `include "ALU_Decoder.v"
 `include "Op_Decoder.v"
 

@@ -14,10 +14,10 @@ module Data_Memory(clk,rst,WE,WD,A,RD);
 
     assign RD = (~rst) ? 32'd0 : mem[A];
 
-    initial begin
-        mem[28] = 32'h00000020;
-        //mem[40] = 32'h00000002;
-    end
+    // initial begin
+    //     mem[28] = 32'h00000020;
+    //     //mem[40] = 32'h00000002;
+    // end
 
 
 endmodule

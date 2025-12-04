@@ -1,11 +1,11 @@
-`include "defines.v"
+`include "define.v"
 
 module ALU(A, B, ALUControl, Result, Zero);
    input  signed [31:0] A, B;
    input         [3:0]  ALUControl;  
    output Zero;  
    
-   reg [31:0] Result;
+   output reg [31:0] Result;
        
    always @(*) begin
       case (ALUControl)

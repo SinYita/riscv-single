@@ -1,4 +1,4 @@
-`include "defines.v"
+`include "define.v"
 module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,ALUOp);
     input  Zero;
     input  [31:0] inst;
@@ -26,7 +26,7 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
 
                 PCSrc <= `PC_NOJUMP;
             end
-            `OPCODE_SW: begin
+            `OPCODE_STORE: begin
                 RegWrite_E <= `NO;
                 ImmSrc   <= `Ext_ImmS;
                 ALUSrc   <= `ALU_IMM;
@@ -64,8 +64,10 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
                 MemWrite_E <= `NO;
                 ResultSrc<= `RWD_ALU;
                 ALUOp    <= `ALUOP_BRANCH;
-
-                PCSrc   <= `PC_J_OFFSET; // this should check zero
+                if (Zero)
+                    PCSrc   <= `PC_J_OFFSET;
+                else
+                    PCSrc   <= `PC_NOJUMP;
             end
             `OPCODE_JAL: begin // jal
                 RegWrite_E <= `YES;
@@ -89,13 +91,14 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
                  PCSrc   <= `PC_NOJUMP;
             end
             default: begin // nop
-                RegWrite_E <= 1'b0;
-                ImmSrc   <= 2'b00;
-                ALUSrc   <= 1'b0;
-                MemWrite_E <= 1'b0;
-                ResultSrc<= 1'b0;
-                PCSrc   <= 1'b0;
+                RegWrite_E <= `NO;
+                ImmSrc   <= `Ext_ImmI;
+                ALUSrc   <= `ALU_REG;
+                MemWrite_E <= `NO;
+                ResultSrc<= `RWD_ALU;
+
                 ALUOp    <= `ALUOP_NOP;
+                PCSrc   <= `PC_NOJUMP;
             end
         endcase
     end

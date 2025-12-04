@@ -1,4 +1,4 @@
-`include "defines.v"
+`include "define.v"
 module ALU_Decoder(ALUOp,funct3,funct7,op,ALUControl);
 
     input [2:0]ALUOp;
