@@ -1,0 +1,146 @@
+$date
+	Thu Dec  4 17:04:10 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module Instruction_Memory_tb $end
+$var wire 32 ! ReadData [31:0] $end
+$var reg 32 " Address [31:0] $end
+$var reg 32 # data_0 [31:0] $end
+$var reg 32 $ data_1 [31:0] $end
+$var reg 32 % data_2 [31:0] $end
+$var reg 32 & data_3 [31:0] $end
+$var reg 32 ' rapid_data_0 [31:0] $end
+$var reg 32 ( rapid_data_1 [31:0] $end
+$var reg 32 ) rapid_data_2 [31:0] $end
+$var reg 1 * rst $end
+$var reg 1 + test_passed $end
+$var integer 32 , test_count [31:0] $end
+$scope module uut $end
+$var wire 32 - Address [31:0] $end
+$var wire 1 * rst $end
+$var wire 32 . ReadData [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+bx .
+bx -
+b0 ,
+1+
+x*
+bx )
+bx (
+bx '
+bx &
+bx %
+bx $
+bx #
+bx "
+bx !
+$end
+#10000
+b0 !
+b0 .
+b0 "
+b0 -
+0*
+#20000
+b11000101110001110110011 !
+b11000101110001110110011 .
+1*
+b1 ,
+#30000
+b11000101111010000110011 !
+b11000101111010000110011 .
+b100 "
+b100 -
+b10 ,
+#40000
+bx !
+bx .
+b1000 "
+b1000 -
+#50000
+b1100 "
+b1100 -
+#60000
+b11000101110001110110011 !
+b11000101110001110110011 .
+b1 "
+b1 -
+b11 ,
+#70000
+b10 "
+b10 -
+b11000101110001110110011 $
+#80000
+b11 "
+b11 -
+b11000101110001110110011 %
+#90000
+b0 "
+b0 -
+b11000101110001110110011 &
+#100000
+bx !
+bx .
+b1000 "
+b1000 -
+b100 ,
+b11000101110001110110011 #
+#105000
+b0 !
+b0 .
+0*
+#115000
+bx !
+bx .
+b111111111100 "
+b111111111100 -
+1*
+b101 ,
+#125000
+b1000000000000 "
+b1000000000000 -
+#135000
+b11000101110001110110011 !
+b11000101110001110110011 .
+b0 "
+b0 -
+b110 ,
+#137000
+b11000101111010000110011 !
+b11000101111010000110011 .
+b100 "
+b100 -
+b11000101110001110110011 '
+#139000
+bx !
+bx .
+b1000 "
+b1000 -
+b11000101111010000110011 (
+#141000
+b11000101110001110110011 !
+b11000101110001110110011 .
+b0 "
+b0 -
+#142000
+b111 ,
+#152000
+b11000101111010000110011 !
+b11000101111010000110011 .
+b100 "
+b100 -
+#162000
+b1000 ,
+#212000
