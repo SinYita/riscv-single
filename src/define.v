@@ -28,12 +28,11 @@
 `define ALUOP_BRANCH                            3'b011
 `define ALUOP_J_UAL                          3'b100
 
-//RWD_Src
+//ResultSrc
 `define RWD_ALU                                 3'b000          // from ALU Result
 `define RWD_MEM                                 3'b001          // from Memory
 `define RWD_PC_                                 3'b010          // PC + 4
 `define RWD_IMM                                 3'b011          // ImmExt
-`define RWD_PCT                                 3'b100          // PC Target
 
 // Opcode definitions
 `define OPCODE_RTYPE  7'b011_0011  // R-type
