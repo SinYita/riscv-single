@@ -6,8 +6,8 @@ module Register_File(clk,rst,WriteEnable3,WD3,Address1,Address2,Address3,RD1,RD2
     
     reg[31:0] Register [31:0]; // we have 32 registers, each is 32 bits wide
     integer i;
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk) begin
+        if(!rst) begin
             for(i = 0; i < 32; i = i + 1) begin
                 Register[i] <= 32'd0;
             end

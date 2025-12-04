@@ -15,6 +15,8 @@ module ALU_Decoder(ALUOp,funct3,funct7,op,ALUControl);
                             ALUControl = `ALU_ADD; // ADD
                         else if (funct7 == 7'b010_0000)
                             ALUControl = `ALU_SUB; // SUB
+                        else 
+                            ALUControl = `ALU_ADD;
                     end
                     3'b100: ALUControl = `ALU_XOR; // XOR
                     3'b110: ALUControl = `ALU_OR;  // OR
@@ -25,10 +27,12 @@ module ALU_Decoder(ALUOp,funct3,funct7,op,ALUControl);
                             ALUControl = `ALU_SHIFTR; // SRL
                         else if(funct7 == 7'b010_0000)
                             ALUControl = `ALU_SHIFTR_ARITH; // SRA
+                        else 
+                            ALUControl = `ALU_SHIFTR;
                     end
                     3'b010: ALUControl = `ALU_LESS_THAN_SIGNED; // SLT
                     3'b011: ALUControl = `ALU_LESS_THAN; // SLTU
-                    default: ALUControl = 3'b000; // default NOP
+                    default: ALUControl = `ALU_NONE; // default NOP
                 endcase
             end
             `ALUOP_ITYPE: begin
@@ -49,13 +53,13 @@ module ALU_Decoder(ALUOp,funct3,funct7,op,ALUControl);
                    
                     3'b010: ALUControl = `ALU_LESS_THAN_SIGNED; // SLTI
                     3'b011: ALUControl = `ALU_LESS_THAN; // SLTIU
-                    default: ALUControl = 3'b000; // default NOP
+                    default: ALUControl = `ALU_NONE; // default NOP
                 endcase
             end
             `ALUOP_LOAD_STORE: ALUControl = `ALU_ADD; // for address calculation
             `ALUOP_BRANCH: ALUControl = `ALU_XOR; // for branch comparison
             `ALUOP_J_UAL: ALUControl = `ALU_NONE; // for jal/jalr address calculation
-            default: ALUControl = 3'b000; // default NOP
+            default: ALUControl = `ALU_NONE; // default NOP
         endcase
     end
 endmodule

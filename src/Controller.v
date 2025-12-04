@@ -17,7 +17,7 @@ input Zero;
     output ResultSrc;          
     output PCSrc;               
     output [2:0] ImmSrc;       
-    output [2:0] ALUControl;  
+    output [3:0] ALUControl;  
 
     wire [2:0] ALUOp;           
     wire [6:0] Op = inst[6:0];  

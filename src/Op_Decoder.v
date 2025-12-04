@@ -96,8 +96,8 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
                 ALUSrc   <= `ALU_REG;
                 MemWrite_E <= `NO;
                 ResultSrc<= `RWD_ALU;
+                ALUOp    <= `ALUOP_ITYPE;
 
-                ALUOp    <= `ALUOP_NOP;
                 PCSrc   <= `PC_NOJUMP;
             end
         endcase

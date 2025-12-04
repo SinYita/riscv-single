@@ -1,4 +1,3 @@
-`timescale 1ns/1ns
 
 // ALU_Ctrl
 `define ALU_NONE                                4'b0000
