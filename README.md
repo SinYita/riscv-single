@@ -92,6 +92,7 @@ All operations complete in one clock cycle.
 ### NPC (Next Program Counter) Module
 
 ![NPC Module](assets/NPC.drawio.png)
+
 *Figure: NPC module architecture*
 
 A dedicated NPC module computes the next program counter value. It supports two update modes:
@@ -104,6 +105,7 @@ A multiplexer controlled by the `PCSrc` signal selects between these two modes.
 ### Two-Level Controller Design
 
 ![Controller Module](assets/Controller.drawio.png)
+
 *Figure: Controller with two-level decoding strategy*
 
 The controller is separated into two submodules for improved clarity:
