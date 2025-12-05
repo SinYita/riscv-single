@@ -3,21 +3,17 @@
 
 module Data_Memory_tb;
 
-    // Testbench signals
     reg clk;
     reg rst;
     reg WE;
     reg [31:0] A, WD;
     wire [31:0] RD;
     
-    // Test tracking
     reg test_passed;
     integer test_count;
     
-    // Temp variables for tests
     reg [31:0] data_addr20, data_addr30;
     
-    // Instantiate the Data Memory
     Data_Memory uut (
         .clk(clk),
         .rst(rst),
@@ -27,19 +23,16 @@ module Data_Memory_tb;
         .RD(RD)
     );
     
-    // Generate clock
     always begin
         clk = 0; #5;
         clk = 1; #5;
     end
     
-    // VCD dump
     initial begin
         $dumpfile("Data_Memory_tb.vcd");
         $dumpvars(0, Data_Memory_tb);
     end
     
-    // Test sequence
     initial begin
         $display("=== Data Memory Module Testbench ===");
         $display("Time\tRst\tWE\tAddr\t\tWriteData\tReadData\tTest Description");
@@ -47,7 +40,6 @@ module Data_Memory_tb;
         test_passed = 1;
         test_count = 0;
         
-        // Initialize signals
         rst = 1;
         WE = 0;
         A = 0;
@@ -62,9 +54,9 @@ module Data_Memory_tb;
                  $time, rst, WE, A, WD, RD);
         
         if (RD == 32'h0) begin
-            $display("✓ PASS: Reset properly disables memory output");
+            $display("PASS: Reset properly disables memory output");
         end else begin
-            $display("✗ FAIL: Reset should disable output, got %08x", RD);
+            $display("FAIL: Reset should disable output, got %08x", RD);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -90,9 +82,9 @@ module Data_Memory_tb;
                  $time, rst, WE, A, WD, RD);
         
         if (RD == 32'h12345678) begin
-            $display("✓ PASS: Basic write/read works correctly");
+            $display("PASS: Basic write/read works correctly");
         end else begin
-            $display("✗ FAIL: Expected %08x, got %08x", 32'h12345678, RD);
+            $display("FAIL: Expected %08x, got %08x", 32'h12345678, RD);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -107,10 +99,10 @@ module Data_Memory_tb;
         $display("%0t\t%b\t%b\t%08x\t%08x\t%08x\tWE=0 Write", 
                  $time, rst, WE, A, WD, RD);
         
-        if (RD == 32'h0) begin // Should read 0 since location was never written
-            $display("✓ PASS: Write disabled when WE=0");
+        if (RD == 32'h0) begin
+            $display("PASS: Write disabled when WE=0");
         end else begin
-            $display("⚠ INFO: Location contains %08x (might be from initialization)", RD);
+            $display("INFO: Location contains %08x (might be from initialization)", RD);
         end
         test_count = test_count + 1;
         
@@ -143,9 +135,9 @@ module Data_Memory_tb;
                  $time, rst, WE, A, WD, RD);
         
         if (RD == data_addr20 && data_addr20 == 32'hABCDEF00) begin
-            $display("✓ PASS: Multiple addresses work independently");
+            $display("PASS: Multiple addresses work independently");
         end else begin
-            $display("✗ FAIL: Address independence failed. Expected %08x, got %08x", 
+            $display("FAIL: Address independence failed. Expected %08x, got %08x", 
                      32'hABCDEF00, RD);
             test_passed = 0;
         end
@@ -163,9 +155,9 @@ module Data_Memory_tb;
                  $time, rst, WE, A, WD, RD);
         
         if (RD == 32'hFFFFFFFF) begin
-            $display("✓ PASS: Data overwrite works correctly");
+            $display("PASS: Data overwrite works correctly");
         end else begin
-            $display("✗ FAIL: Overwrite failed. Expected FFFFFFFF, got %08x", RD);
+            $display("FAIL: Overwrite failed. Expected FFFFFFFF, got %08x", RD);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -183,9 +175,9 @@ module Data_Memory_tb;
                  $time, rst, WE, A, WD, RD);
         
         if (RD == 32'h00000001) begin
-            $display("✓ PASS: Address 0 works correctly");
+            $display("PASS: Address 0 works correctly");
         end else begin
-            $display("✗ FAIL: Address 0 failed. Expected 00000001, got %08x", RD);
+            $display("FAIL: Address 0 failed. Expected 00000001, got %08x", RD);
             test_passed = 0;
         end
         
@@ -199,9 +191,9 @@ module Data_Memory_tb;
                  $time, rst, WE, A, WD, RD);
         
         if (RD == 32'h1023ABCD) begin
-            $display("✓ PASS: Large valid address works correctly");
+            $display("PASS: Large valid address works correctly");
         end else begin
-            $display("✗ FAIL: Large address failed. Expected 1023ABCD, got %08x", RD);
+            $display("FAIL: Large address failed. Expected 1023ABCD, got %08x", RD);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -215,7 +207,7 @@ module Data_Memory_tb;
         WE = 0; #10;
         
         if (RD == 32'h11111111) 
-            $display("✓ PASS: Rapid operation 1 successful");
+            $display("PASS: Rapid operation 1 successful");
         
         A = 32'h00000104; 
         WE = 1;
@@ -223,7 +215,7 @@ module Data_Memory_tb;
         WE = 0; #10;
         
         if (RD == 32'h22222222) 
-            $display("✓ PASS: Rapid operation 2 successful");
+            $display("PASS: Rapid operation 2 successful");
         
         test_count = test_count + 1;
         
@@ -242,8 +234,7 @@ module Data_Memory_tb;
         $display("%0t\t%b\t%b\t%08x\t%08x\t%08x\tReset+Write", 
                  $time, rst, WE, A, WD, RD);
         
-        // Memory content is undefined during reset, but output should be 0
-        $display("✓ INFO: Reset behavior during write tested");
+        $display("INFO: Reset behavior during write tested");
         test_count = test_count + 1;
         
         // Test 10: Clock edge behavior
@@ -263,9 +254,9 @@ module Data_Memory_tb;
                  $time, rst, WE, A, WD, RD);
         
         if (RD == 32'hCCCCCCCC) begin
-            $display("✓ PASS: Write occurs on positive clock edge");
+            $display("PASS: Write occurs on positive clock edge");
         end else begin
-            $display("✗ FAIL: Clock edge timing issue. Expected CCCCCCCC, got %08x", RD);
+            $display("FAIL: Clock edge timing issue. Expected CCCCCCCC, got %08x", RD);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -273,9 +264,9 @@ module Data_Memory_tb;
         // Final results
         $display("\n=== Data_Memory Testbench Complete ===");
         if (test_passed) begin
-            $display("🎉 ALL TESTS PASSED! (%0d/%0d)", test_count, test_count);
+            $display("ALL TESTS PASSED! (%0d/%0d)", test_count, test_count);
         end else begin
-            $display("❌ SOME TESTS FAILED!");
+            $display("SOME TESTS FAILED!");
         end
         
         #50;

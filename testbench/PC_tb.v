@@ -1,13 +1,11 @@
 `timescale 1ns/1ps
 
 module PC_tb();
-    // Testbench signals
     reg clk;
     reg rst;
     reg [31:0] NPC;
     wire [31:0] PC;
     
-    // Instantiate the PC module
     PC uut (
         .clk(clk),
         .rst(rst),
@@ -20,12 +18,12 @@ module PC_tb();
         forever #5 clk = ~clk;
     end
     
-    // Test sequence
     initial begin
         rst = 0;
         NPC = 32'h00000000;
         $dumpfile("PC_tb.vcd");
-        $dumpvars(0, PC_tb);        $display("=== PC Module Testbench ===");
+        $dumpvars(0, PC_tb);        
+        $display("=== PC Module Testbench ===");
         $display("Time\tRST\tNPC\t\tPC");
         $monitor("%0t\t%b\t%h\t%h", $time, rst, NPC, PC);
         
