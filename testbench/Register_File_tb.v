@@ -3,7 +3,7 @@
 
 module Register_File_tb;
 
-    // Testbench signals
+
     reg clk;
     reg rst;
     reg WriteEnable3;
@@ -11,11 +11,9 @@ module Register_File_tb;
     reg [31:0] WD3;
     wire [31:0] RD1, RD2;
     
-    // Test tracking
     reg test_passed;
     integer test_count;
-    
-    // Instantiate the Register File
+
     Register_File uut (
         .clk(clk),
         .rst(rst),
@@ -28,19 +26,16 @@ module Register_File_tb;
         .RD2(RD2)
     );
     
-    // Generate clock
     always begin
         clk = 0; #5;
-        clk = 1; #5;
+        clk = ~clk; #5;
     end
     
-    // VCD dump
     initial begin
         $dumpfile("Register_File_tb.vcd");
         $dumpvars(0, Register_File_tb);
     end
     
-    // Test sequence
     initial begin
         $display("=== Register File Module Testbench ===");
         $display("Time\tRst\tWE3\tAddr1\tAddr2\tAddr3\tWD3\t\tRD1\t\tRD2\t\tTest");
@@ -49,7 +44,7 @@ module Register_File_tb;
         test_count = 0;
         
         // Initialize signals
-        rst = 0;  // Start with active-low reset active
+        rst = 0;  // Apply active-low reset (rst=0 means reset active)
         WriteEnable3 = 0;
         Address1 = 0;
         Address2 = 0;
@@ -58,20 +53,20 @@ module Register_File_tb;
         
         // Test 1: Reset functionality
         $display("\n--- Test 1: Reset Functionality ---");
-        rst = 0; // Apply active-low reset
+        rst = 0; // Apply reset
         #20;
         $display("%0t\t%b\t%b\t%2d\t%2d\t%2d\t%08x\t%08x\t%08x\tReset", 
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD1 == 32'h0 && RD2 == 32'h0) begin
-            $display("✓ PASS: Reset clears registers");
+            $display("PASS: Reset clears registers");
         end else begin
-            $display("✗ FAIL: Reset should clear all registers to 0");
+            $display("FAIL: Reset should clear all registers to 0");
             test_passed = 0;
         end
         test_count = test_count + 1;
         
-        rst = 1; // Release reset for normal operation
+        rst = 1;
         #10;
         
         // Test 2: Write to register 0 should be ignored
@@ -85,9 +80,9 @@ module Register_File_tb;
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD1 == 32'h0) begin
-            $display("✓ PASS: Register 0 remains 0 (write ignored)");
+            $display("PASS: Register 0 remains 0 (write ignored)");
         end else begin
-            $display("✗ FAIL: Register 0 should always be 0, got %08x", RD1);
+            $display("FAIL: Register 0 should always be 0, got %08x", RD1);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -107,9 +102,9 @@ module Register_File_tb;
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD1 == 32'h12345678) begin
-            $display("✓ PASS: Write/Read register 5 works");
+            $display("PASS: Write/Read register 5 works");
         end else begin
-            $display("✗ FAIL: Expected %08x, got %08x", 32'h12345678, RD1);
+            $display("FAIL: Expected %08x, got %08x", 32'h12345678, RD1);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -125,9 +120,9 @@ module Register_File_tb;
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD2 == 32'hABCDEF00) begin
-            $display("✓ PASS: Write/Read register 10 works");
+            $display("PASS: Write/Read register 10 works");
         end else begin
-            $display("✗ FAIL: Expected %08x, got %08x", 32'hABCDEF00, RD2);
+            $display("FAIL: Expected %08x, got %08x", 32'hABCDEF00, RD2);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -142,9 +137,9 @@ module Register_File_tb;
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD1 == 32'h12345678 && RD2 == 32'hABCDEF00) begin
-            $display("✓ PASS: Dual port read works correctly");
+            $display("PASS: Dual port read works correctly");
         end else begin
-            $display("✗ FAIL: Dual read failed. RD1=%08x (exp:12345678), RD2=%08x (exp:ABCDEF00)", RD1, RD2);
+            $display("FAIL: Dual read failed. RD1=%08x (exp:12345678), RD2=%08x (exp:ABCDEF00)", RD1, RD2);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -162,9 +157,9 @@ module Register_File_tb;
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD1 == 32'h0) begin
-            $display("✓ PASS: Write disabled when WE=0");
+            $display("PASS: Write disabled when WE=0");
         end else begin
-            $display("✗ FAIL: Write should be disabled when WE=0, got %08x", RD1);
+            $display("FAIL: Write should be disabled when WE=0, got %08x", RD1);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -181,9 +176,9 @@ module Register_File_tb;
         Address1 = 5'd1;
         #1;
         if (RD1 == 32'h11111111) begin
-            $display("✓ PASS: Register 1 write/read works");
+            $display("PASS: Register 1 write/read works");
         end else begin
-            $display("✗ FAIL: Register 1 failed. Expected 11111111, got %08x", RD1);
+            $display("FAIL: Register 1 failed. Expected 11111111, got %08x", RD1);
             test_passed = 0;
         end
         
@@ -198,9 +193,9 @@ module Register_File_tb;
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD2 == 32'h31313131) begin
-            $display("✓ PASS: Register 31 write/read works");
+            $display("PASS: Register 31 write/read works");
         end else begin
-            $display("✗ FAIL: Register 31 failed. Expected 31313131, got %08x", RD2);
+            $display("FAIL: Register 31 failed. Expected 31313131, got %08x", RD2);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -217,9 +212,9 @@ module Register_File_tb;
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD1 == 32'hCAFEBABE) begin
-            $display("✓ PASS: Data overwrite works");
+            $display("PASS: Data overwrite works");
         end else begin
-            $display("✗ FAIL: Overwrite failed. Expected CAFEBABE, got %08x", RD1);
+            $display("FAIL: Overwrite failed. Expected CAFEBABE, got %08x", RD1);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -232,22 +227,23 @@ module Register_File_tb;
         $display("Before reset: R5=%08x, R10=%08x", RD1, RD2);
         
         // Apply reset
-        rst = 0; // Active low reset
+        rst = 0; // Apply active-low reset
         @(posedge clk); // Reset happens on this clock edge
         #1;
         $display("After reset clock: R5=%08x, R10=%08x", RD1, RD2);
         
         // Release reset  
-        rst = 1; #1;
+        rst = 1; // Release reset back to normal operation
+        #1;
         $display("After releasing reset: R5=%08x, R10=%08x", RD1, RD2);
         
         $display("%0t\t%b\t%b\t%2d\t%2d\t%2d\t%08x\t%08x\t%08x\tPost-Reset", 
                  $time, rst, WriteEnable3, Address1, Address2, Address3, WD3, RD1, RD2);
         
         if (RD1 == 32'h0 && RD2 == 32'h0) begin
-            $display("✓ PASS: Reset clears all previous data");
+            $display("PASS: Reset clears all previous data");
         end else begin
-            $display("✗ FAIL: Reset should clear all data. RD1=%08x, RD2=%08x", RD1, RD2);
+            $display("FAIL: Reset should clear all data. RD1=%08x, RD2=%08x", RD1, RD2);
             test_passed = 0;
         end
         test_count = test_count + 1;
@@ -255,9 +251,9 @@ module Register_File_tb;
         // Final results
         $display("\n=== Register_File Testbench Complete ===");
         if (test_passed) begin
-            $display("🎉 ALL TESTS PASSED! (%0d/%0d)", test_count, test_count);
+            $display("ALL TESTS PASSED! (%0d/%0d)", test_count, test_count);
         end else begin
-            $display("❌ SOME TESTS FAILED!");
+            $display("SOME TESTS FAILED!");
         end
         
         #50;

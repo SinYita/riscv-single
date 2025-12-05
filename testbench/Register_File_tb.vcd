@@ -1,5 +1,5 @@
 $date
-	Thu Dec  4 17:03:16 2025
+	Fri Dec  5 11:43:11 2025
 $end
 $version
 	Icarus Verilog
@@ -38,10 +38,10 @@ $dumpall
 $end
 #0
 $dumpvars
-bx 2
+b100000 2
 b0 1
-bx 0
-bx /
+b0 0
+b0 /
 b0 .
 b0 -
 b0 ,
@@ -54,14 +54,10 @@ b0 &
 b0 %
 b0 $
 b0 #
-bx "
-bx !
+b0 "
+b0 !
 $end
 #5000
-b0 "
-b0 /
-b0 !
-b0 0
 b100000 2
 1(
 #10000
