@@ -2,7 +2,7 @@
 
 A complete implementation of a 32-bit single-cycle RISC-V processor in Verilog, supporting a subset of the RV32I base instruction set. This project focuses on essential components including the controller, immediate extension unit, ALU interface, and next-PC logic.
 
-![CPU Architecture](../assets/cpu.drawio.png)
+![CPU Architecture](assets/cpu.drawio.png)
 *Figure: CPU Top-Level Architecture (green components indicate modifications to the baseline design)*
 
 ## Project Structure
@@ -109,6 +109,7 @@ A multiplexer controlled by the `PCSrc` signal selects between these two modes.
 The controller is separated into two submodules for improved clarity:
 
 **First-Level Decoder (Op_Decoder)**:
+
 ![Op_Decoder](assets/first.png)
 *Figure: First-level decoder classifies instructions by type*
 
@@ -117,6 +118,7 @@ The controller is separated into two submodules for improved clarity:
 - Outputs 3-bit `ALUOp` signal for second-level decoding
 
 **Second-Level Decoder (ALU_Decoder)**:
+
 ![ALU_Decoder](assets/second.png)
 *Figure: Second-level decoder resolves exact ALU operations*
 
@@ -131,7 +133,7 @@ The controller is separated into two submodules for improved clarity:
 ![Define Tables](assets/define.png)
 *Figure: Macro definition tables for opcodes and control signals*
 
-The implementation extensively uses Verilog macros to improve code readability and maintainability. All opcodes, ALU operations, and control signals are defined as named constants.
+The implementation extensively uses Verilog macros to improve code readability and maintainability. All opcodes, ALU operations, and control signals are defined as named constants in `define.v`.
 
 ## Reset Behavior
 
