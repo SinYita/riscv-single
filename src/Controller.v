@@ -14,7 +14,7 @@ input Zero;
     output RegWrite_E;           
     output ALUSrc;              
     output MemWrite_E;           
-    output ResultSrc;          
+    output [2:0] ResultSrc;          
     output PCSrc;               
     output [2:0] ImmSrc;       
     output [3:0] ALUControl;  

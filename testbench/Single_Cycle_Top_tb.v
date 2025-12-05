@@ -136,7 +136,6 @@ module Single_Cycle_Top_tb;
     endtask
     
     initial begin
-        $display("=== RISC-V CPU Execution Monitor ===");
         $display("Executing program from memfile.hex with register monitoring\n");
         
         cycle_count = 0;
@@ -149,7 +148,6 @@ module Single_Cycle_Top_tb;
         
         $display("=== Starting CPU Execution ===\n");
         
-        $display("Cycle %0d:", cycle_count);
         decode_instruction(PC_current, instruction);
         
         @(posedge clk);
@@ -178,19 +176,18 @@ module Single_Cycle_Top_tb;
             if (cycle_count % 5 == 0 || RegWrite) begin
                 display_registers();
             end
-            
             cycle_count = cycle_count + 1;
             $display("");
             
             if (instruction == 32'h00000063 || instruction == 32'h00000000 || PC_current >= 32'h200 || instruction === 32'hxxxxxxxx) begin
-                if (instruction == 32'h00000063)
-                    $display("Program terminated with infinite loop (BEQ x0, x0, 0)");
-                else if (instruction == 32'h00000000)
-                    $display("Program terminated - reached uninitialized memory (NOP)");
-                else if (instruction === 32'hxxxxxxxx)
-                    $display("Program terminated - reached uninitialized memory (unknown instruction)");
-                else
-                    $display("Program terminated - PC exceeded expected range");
+                // if (instruction == 32'h00000063)
+                //     $display("Program terminated with infinite loop (BEQ x0, x0, 0)");
+                // else if (instruction == 32'h00000000)
+                //     $display("Program terminated - reached uninitialized memory (NOP)");
+                // else if (instruction === 32'hxxxxxxxx)
+                //     $display("Program terminated - reached uninitialized memory (unknown instruction)");
+                // else
+                //     $display("Program terminated - PC exceeded expected range");
                 disable repeat_loop;
             end
             

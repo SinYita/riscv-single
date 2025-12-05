@@ -29,10 +29,10 @@
 `define ALUOP_J_UAL                          3'b100
 
 //ResultSrc
-`define RWD_ALU                                 3'b000          // from ALU Result
-`define RWD_MEM                                 3'b001          // from Memory
-`define RWD_PC_                                 3'b010          // PC + 4
-`define RWD_IMM                                 3'b011          // ImmExt
+`define FROM_ALU                                 3'b000          // from ALU Result
+`define FROM_MEM                                 3'b001          // from Memory
+`define FROM_PC_                                 3'b010          // PC + 4
+`define FROM_IMM                                 3'b011          // ImmExt
 
 // Opcode definitions
 `define OPCODE_RTYPE  7'b011_0011  // R-type
