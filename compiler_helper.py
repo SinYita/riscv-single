@@ -31,7 +31,7 @@ TESTBENCH_CONFIG = {
     },
     'Controller': {
         'testbench': 'Controller_tb.v',
-        'modules': ['Controller.v', 'Op_Decoder.v'],
+        'modules': ['Controller.v'],
         'executable': 'controller_test',
         'description': 'Main Controller (Instruction Decoder)'
     },
@@ -79,9 +79,7 @@ TESTBENCH_CONFIG = {
     },
     'Single_Cycle_Top': {
         'testbench': 'Single_Cycle_Top_tb.v',
-        'modules': ['Single_Cycle_Top.v', 'PC.v', 'NPC.v', 'Instruction_Memory.v', 
-                   'Controller.v', 'Op_Decoder.v', 'Register_File.v', 'Sign_Extend.v',
-                   'ALU.v', 'ALU_Decoder.v', 'Data_Memory.v', 'Mux.v'],
+        'modules': [],
         'executable': 'single_cycle_top_test',
         'description': 'Complete Single Cycle CPU'
     }

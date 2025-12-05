@@ -4,13 +4,13 @@
 
 module Controller(Zero,inst, RegWrite_E, ImmSrc, ALUSrc, MemWrite_E, ResultSrc, PCSrc, funct3, funct7, ALUControl);
 
-    // Inputs
-input Zero;
+
+    input Zero;
     input [31:0] inst;          
     input [2:0] funct3;        
     input [6:0] funct7;        
 
-    // Outputs  
+    
     output RegWrite_E;           
     output ALUSrc;              
     output MemWrite_E;           
@@ -39,7 +39,7 @@ input Zero;
         .ALUOp(ALUOp),
         .funct3(funct3),
         .funct7(funct7),
-        .op(Op),                      
+        .op(Op),                     
         .ALUControl(ALUControl)
     );
 
