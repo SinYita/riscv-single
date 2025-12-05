@@ -17,6 +17,9 @@ module Single_Cycle_Top_tb;
     wire [31:0] reg_write_data;
     wire [31:0] immediate;
     wire RegWrite, MemWrite;
+    wire [31:0] memory_read_data;
+    wire [31:0] alu_result;
+    wire [2:0] result_src;
     
     Single_Cycle_Top cpu (
         .clk(clk),
@@ -31,6 +34,9 @@ module Single_Cycle_Top_tb;
     assign immediate = cpu.Imm_Ext_Top;
     assign RegWrite = cpu.RegWrite;
     assign MemWrite = cpu.MemWrite;
+    assign memory_read_data = cpu.ReadData;
+    assign alu_result = cpu.ALUResult;
+    assign result_src = cpu.ResultSrc;
     
     initial clk = 0;
     always #5 clk = ~clk;
@@ -106,8 +112,14 @@ module Single_Cycle_Top_tb;
                     endcase
                 end
                 
-                `OPCODE_LOAD:  $display("    LW R%0d, %0d(R%0d)  (R%0d = MEM[0x%08x])", rd, $signed(immediate), rs1, rd, reg_data1 + $signed(immediate));
-                `OPCODE_STORE: $display("    SW R%0d, %0d(R%0d)  (MEM[0x%08x] = 0x%08x)", rs2, $signed(immediate), rs1, reg_data1 + $signed(immediate), reg_data2);
+                `OPCODE_LOAD: begin
+                    $display("    LW R%0d, %0d(R%0d)  (R%0d = MEM[0x%08x])", rd, $signed(immediate), rs1, rd, reg_data1 + $signed(immediate));
+                    $display("      Debug: ALU_Result=0x%08x, MemReadData=0x%08x, ResultSrc=%0d", alu_result, memory_read_data, result_src);
+                end
+                `OPCODE_STORE: begin
+                    $display("    SW R%0d, %0d(R%0d)  (MEM[0x%08x] = 0x%08x)", rs2, $signed(immediate), rs1, reg_data1 + $signed(immediate), reg_data2);
+                    $display("      Debug: ALU_Result=0x%08x, ResultSrc=%0d", alu_result, result_src);
+                end
                 `OPCODE_BRANCH: $display("    BEQ R%0d, R%0d, %0d (Branch if 0x%08x == 0x%08x)", rs1, rs2, $signed(immediate), reg_data1, reg_data2);
                 `OPCODE_JAL:   $display("    JAL R%0d, %0d  (R%0d = PC+4, PC = PC + %0d)", rd, $signed(immediate), rd, $signed(immediate));
                 `OPCODE_LUI:   $display("    LUI R%0d, %0d  (R%0d = 0x%08x)", rd, immediate[31:12], rd, immediate);

@@ -184,7 +184,7 @@ module Controller_tb;
         inst = {20'h12345, `OPCODE_JAL};
         Zero = 0;
         exp_RegWrite_E = `YES; exp_ImmSrc = `Ext_ImmJ; exp_ALUSrc = `ALU_IMM;
-        exp_MemWrite_E = `NO; exp_ResultSrc = `RWD_PC_; exp_PCSrc = `PC_J_OFFSET;
+        exp_MemWrite_E = `NO; exp_ResultSrc = `FROM_PC_; exp_PCSrc = `PC_J_OFFSET;
         exp_ALUControl = `ALU_NONE;
         #10;
         check_signals("Jump JAL");
@@ -193,7 +193,7 @@ module Controller_tb;
         
         inst = {20'hABCDE, 5'b00001, `OPCODE_LUI};
         exp_RegWrite_E = `YES; exp_ImmSrc = `Ext_ImmU; exp_ALUSrc = `ALU_IMM;
-        exp_MemWrite_E = `NO; exp_ResultSrc = `RWD_IMM; exp_PCSrc = `PC_NOJUMP;
+        exp_MemWrite_E = `NO; exp_ResultSrc = `FROM_IMM; exp_PCSrc = `PC_NOJUMP;
         exp_ALUControl = `ALU_NONE;
         #10;
         check_signals("U-type LUI");
