@@ -18,6 +18,11 @@ module Register_File(clk,rst,WriteEnable3,WD3,Address1,Address2,Address3,RD1,RD2
     assign RD1 = Register[Address1];
     assign RD2 = Register[Address2];
 
+    initial begin
+        for(i = 0;i < 32;i = i + 1) begin
+            Register[i] = 32'd0;
+        end
+    end
     // initial begin
     //     Register[5] = 32'h00000005;
     //     Register[6] = 32'h00000004;
