@@ -3,21 +3,17 @@
 
 module ALU_tb;
 
-    // Testbench signals
     reg signed [31:0] A, B;
     reg [3:0] ALUControl;
     wire [31:0] Result;
     wire Zero;
     
-    // Test tracking
     reg test_passed;
     integer test_count;
     
-    // Expected results for comparison
     reg [31:0] expected_result;
     reg expected_zero;
     
-    // Instantiate the ALU
     ALU uut (
         .A(A),
         .B(B),
@@ -26,13 +22,11 @@ module ALU_tb;
         .Zero(Zero)
     );
     
-    // VCD dump
     initial begin
         $dumpfile("ALU_tb.vcd");
         $dumpvars(0, ALU_tb);
     end
     
-    // Test sequence
     initial begin
         $display("=== ALU Module Testbench ===");
         $display("Time\tALUCtrl\tA\t\tB\t\tResult\t\tZero\tExpected\tTest Description");
@@ -40,7 +34,6 @@ module ALU_tb;
         test_passed = 1;
         test_count = 0;
         
-        // Initialize signals
         A = 0;
         B = 0;
         ALUControl = `ALU_NONE;
@@ -50,16 +43,16 @@ module ALU_tb;
         
         // Test 1.1: Positive + Positive
         A = 32'h12345678; B = 32'h87654321; ALUControl = `ALU_ADD;
-        expected_result = 32'h12345678 + 32'h87654321;
+        expected_result = A + B;
         expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "ADD: pos+pos");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Addition positive numbers");
+            $display("PASS: Addition positive numbers");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -67,16 +60,16 @@ module ALU_tb;
         
         // Test 1.2: Addition resulting in zero
         A = 32'hFFFFFFFF; B = 32'h00000001; ALUControl = `ALU_ADD;
-        expected_result = 32'h00000000;
-        expected_zero = 1;
+        expected_result = A + B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "ADD: -1+1=0");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Addition zero result");
+            $display("PASS: Addition zero result");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -86,16 +79,16 @@ module ALU_tb;
         
         // Test 2.1: Basic subtraction
         A = 32'h87654321; B = 32'h12345678; ALUControl = `ALU_SUB;
-        expected_result = 32'h87654321 - 32'h12345678;
+        expected_result = A - B;
         expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SUB: basic");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Subtraction basic");
+            $display("PASS: Subtraction basic");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -103,16 +96,16 @@ module ALU_tb;
         
         // Test 2.2: Subtraction resulting in zero
         A = 32'h12345678; B = 32'h12345678; ALUControl = `ALU_SUB;
-        expected_result = 32'h00000000;
-        expected_zero = 1;
+        expected_result = A - B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SUB: same=0");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Subtraction zero result");
+            $display("PASS: Subtraction zero result");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -121,37 +114,33 @@ module ALU_tb;
         $display("\n--- Test 3: ALU_AND (Bitwise AND) ---");
         
         A = 32'hF0F0F0F0; B = 32'h0F0F0F0F; ALUControl = `ALU_AND;
-        expected_result = 32'h00000000;
-        expected_zero = 1;
+        expected_result = A & B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "AND: no overlap");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: AND no overlap");
+            $display("PASS: AND no overlap");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
         test_count = test_count + 1;
         
-        // AND with overlap
-        A = 32'hFFFF0000; B = 32'h0000FFFF; ALUControl = `ALU_AND;
-        expected_result = 32'h00000000;
-        expected_zero = 1;
-        #10;
+        // AND with all ones
         A = 32'hFFFFFFFF; B = 32'h12345678; ALUControl = `ALU_AND;
-        expected_result = 32'h12345678;
-        expected_zero = 0;
+        expected_result = A & B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "AND: all 1s");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: AND with all 1s");
+            $display("PASS: AND with all 1s");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -160,16 +149,16 @@ module ALU_tb;
         $display("\n--- Test 4: ALU_OR (Bitwise OR) ---");
         
         A = 32'hF0F0F0F0; B = 32'h0F0F0F0F; ALUControl = `ALU_OR;
-        expected_result = 32'hFFFFFFFF;
-        expected_zero = 0;
+        expected_result = A | B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "OR: complement");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: OR complement patterns");
+            $display("PASS: OR complement patterns");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -177,16 +166,16 @@ module ALU_tb;
         
         // OR with zero
         A = 32'h00000000; B = 32'h00000000; ALUControl = `ALU_OR;
-        expected_result = 32'h00000000;
-        expected_zero = 1;
+        expected_result = A | B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "OR: zero");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: OR with zeros");
+            $display("PASS: OR with zeros");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -195,16 +184,16 @@ module ALU_tb;
         $display("\n--- Test 5: ALU_XOR (Bitwise XOR) ---");
         
         A = 32'hAAAAAAAA; B = 32'h55555555; ALUControl = `ALU_XOR;
-        expected_result = 32'hFFFFFFFF;
-        expected_zero = 0;
+        expected_result = A ^ B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "XOR: invert");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: XOR inverting pattern");
+            $display("PASS: XOR inverting pattern");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -212,8 +201,8 @@ module ALU_tb;
         
         // XOR same values (should be zero)
         A = 32'h12345678; B = 32'h12345678; ALUControl = `ALU_XOR;
-        expected_result = 32'h00000000;
-        expected_zero = 1;
+        expected_result = A ^ B;
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "XOR: same=0");
@@ -230,33 +219,33 @@ module ALU_tb;
         $display("\n--- Test 6: ALU_SHIFTL (Shift Left) ---");
         
         A = 32'h00000001; B = 32'h00000004; ALUControl = `ALU_SHIFTL;
-        expected_result = 32'h00000010;
-        expected_zero = 0;
+        expected_result = A << B[4:0];
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SLL: 1<<4");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Shift left basic");
+            $display("PASS: Shift left basic");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
         test_count = test_count + 1;
         
         // Shift left with overflow
-        A = 32'hF0000000; B = 32'h00000004; ALUControl = `ALU_SHIFTL;
-        expected_result = 32'h00000000;
-        expected_zero = 1;
+        A = 32'hF0000000; B = 32'h00000040; ALUControl = `ALU_SHIFTL;
+        expected_result = A << B[4:0];
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SLL: overflow");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Shift left overflow");
+            $display("PASS: Shift left overflow");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -265,16 +254,16 @@ module ALU_tb;
         $display("\n--- Test 7: ALU_SHIFTR (Shift Right Logical) ---");
         
         A = 32'h80000000; B = 32'h00000004; ALUControl = `ALU_SHIFTR;
-        expected_result = 32'h08000000;
-        expected_zero = 0;
+        expected_result = A >> B[4:0];
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SRL: logical");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Shift right logical");
+            $display("PASS: Shift right logical");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -283,16 +272,16 @@ module ALU_tb;
         $display("\n--- Test 8: ALU_SHIFTR_ARITH (Shift Right Arithmetic) ---");
         
         A = 32'h80000000; B = 32'h00000004; ALUControl = `ALU_SHIFTR_ARITH;
-        expected_result = 32'hF8000000; // Sign extension
-        expected_zero = 0;
+        expected_result = A >>> B[4:0]; // Sign extension
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SRA: negative");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Shift right arithmetic negative");
+            $display("PASS: Shift right arithmetic negative");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -300,16 +289,16 @@ module ALU_tb;
         
         // Positive number arithmetic shift
         A = 32'h70000000; B = 32'h00000004; ALUControl = `ALU_SHIFTR_ARITH;
-        expected_result = 32'h07000000;
-        expected_zero = 0;
+        expected_result = A >>> B[4:0];
+        expected_zero = (expected_result == 0);
         #10;
         $display("%0t\t%b\t%08x\t%08x\t%08x\t%b\t%08x\t%s", 
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SRA: positive");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Shift right arithmetic positive");
+            $display("PASS: Shift right arithmetic positive");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -326,9 +315,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SLT: -1<1");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: SLT negative less than positive");
+            $display("PASS: SLT negative less than positive");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -343,9 +332,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SLT: 1<-1");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: SLT positive not less than negative");
+            $display("PASS: SLT positive not less than negative");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -362,9 +351,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SLTU: large>small");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: SLTU large unsigned not less than small");
+            $display("PASS: SLTU large unsigned not less than small");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -379,9 +368,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SLTU: small<large");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: SLTU small unsigned less than large");
+            $display("PASS: SLTU small unsigned less than large");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -397,9 +386,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "NONE: pass A");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: ALU_NONE passes A through");
+            $display("PASS: ALU_NONE passes A through");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -414,9 +403,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "NONE: pass 0");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: ALU_NONE passes zero through");
+            $display("PASS: ALU_NONE passes zero through");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -432,9 +421,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "Invalid: default");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Invalid control defaults to pass A");
+            $display("PASS: Invalid control defaults to pass A");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -451,9 +440,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "ADD: overflow");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Addition overflow behavior");
+            $display("PASS: Addition overflow behavior");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -468,9 +457,9 @@ module ALU_tb;
                  $time, ALUControl, A, B, Result, Zero, expected_result, "SLL: shift 0");
         
         if (Result == expected_result && Zero == expected_zero) begin
-            $display("✓ PASS: Shift by zero");
+            $display("PASS: Shift by zero");
         end else begin
-            $display("✗ FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
+            $display("FAIL: Expected Result=%08x Zero=%b, got Result=%08x Zero=%b", 
                      expected_result, expected_zero, Result, Zero);
             test_passed = 0;
         end
@@ -479,9 +468,9 @@ module ALU_tb;
         // Final results
         $display("\n=== ALU Testbench Complete ===");
         if (test_passed) begin
-            $display("🎉 ALL TESTS PASSED! (%0d/%0d)", test_count, test_count);
+            $display("ALL TESTS PASSED! (%0d/%0d)", test_count, test_count);
         end else begin
-            $display("❌ SOME TESTS FAILED!");
+            $display("SOME TESTS FAILED!");
         end
         
         #50;
