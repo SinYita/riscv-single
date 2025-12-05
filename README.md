@@ -2,8 +2,6 @@
 
 A complete implementation of a 32-bit single-cycle RISC-V processor in Verilog, supporting a subset of the RV32I base instruction set. This project focuses on essential components including the controller, immediate extension unit, ALU interface, and next-PC logic.
 
-![CPU Architecture](assets/cpu.drawio.png)
-*Figure: CPU Top-Level Architecture (green components indicate modifications to the baseline design)*
 
 ## Project Structure
 
