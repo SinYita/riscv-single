@@ -1,11 +1,11 @@
 `include "define.v"
-module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,ALUOp);
+module Op_Decoder(Zero,inst,rf_we,sel_ext,alu_control,dmem_we,ResultSrc,PCSrc,ALUOp);
     input  Zero;
     input  [31:0] inst;
-    output reg RegWrite_E;
-    output reg [2:0] ImmSrc; // which type of immediate extension
-    output reg ALUSrc; // the second operand
-    output reg MemWrite_E;
+    output reg rf_we;
+    output reg [2:0] sel_ext; // which type of immediate extension
+    output reg alu_control; // the second operand
+    output reg dmem_we;
     output reg [2:0] ResultSrc; // ? -> register
     output reg PCSrc; // Branch or not
     output reg [2:0] ALUOp; // ALU operation
@@ -17,20 +17,20 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
     always @* begin
         case (Op)
             `OPCODE_LOAD: begin // lw
-                RegWrite_E <= `YES;
-                ImmSrc   <= `Ext_ImmI;
-                ALUSrc   <= `ALU_IMM;
-                MemWrite_E <= `NO;
+                rf_we <= `YES;
+                sel_ext   <= `Ext_ImmI;
+                alu_control   <= `ALU_IMM;
+                dmem_we <= `NO;
                 ResultSrc<= `FROM_MEM;
                 ALUOp    <= `ALUOP_LOAD_STORE;
 
                 PCSrc <= `PC_NOJUMP;
             end
             `OPCODE_STORE: begin
-                RegWrite_E <= `NO;
-                ImmSrc   <= `Ext_ImmS;
-                ALUSrc   <= `ALU_IMM;
-                MemWrite_E <= `YES;
+                rf_we <= `NO;
+                sel_ext   <= `Ext_ImmS;
+                alu_control   <= `ALU_IMM;
+                dmem_we <= `YES;
                 ResultSrc<= `FROM_MEM;
                 ALUOp    <= `ALUOP_LOAD_STORE;
 
@@ -38,30 +38,30 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
                 
             end
             `OPCODE_RTYPE: begin
-                RegWrite_E <= `YES;
-                ImmSrc   <= `Ext_ImmI;
-                ALUSrc   <= `ALU_REG;
-                MemWrite_E <= `NO;
+                rf_we <= `YES;
+                sel_ext   <= `Ext_ImmI;
+                alu_control   <= `ALU_REG;
+                dmem_we <= `NO;
                 ResultSrc<= `FROM_ALU;
                 ALUOp    <= `ALUOP_RTYPE;
 
                 PCSrc   <= `PC_NOJUMP;
             end
             `OPCODE_ITYPE: begin
-                RegWrite_E <= `YES;
-                ImmSrc   <= `Ext_ImmI;
-                ALUSrc   <= `ALU_IMM;
-                MemWrite_E <= `NO;
+                rf_we <= `YES;
+                sel_ext   <= `Ext_ImmI;
+                alu_control   <= `ALU_IMM;
+                dmem_we <= `NO;
                 ResultSrc<= `FROM_ALU;
                 ALUOp    <= `ALUOP_ITYPE;
 
                 PCSrc   <= `PC_NOJUMP;
             end
             `OPCODE_BRANCH: begin
-                RegWrite_E <= `NO;
-                ImmSrc   <= `Ext_ImmB;
-                ALUSrc   <= `ALU_REG;
-                MemWrite_E <= `NO;
+                rf_we <= `NO;
+                sel_ext   <= `Ext_ImmB;
+                alu_control   <= `ALU_REG;
+                dmem_we <= `NO;
                 ResultSrc<= `FROM_ALU;
                 ALUOp    <= `ALUOP_BRANCH;
                 if (Zero)
@@ -70,20 +70,20 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
                     PCSrc   <= `PC_NOJUMP;
             end
             `OPCODE_JAL: begin // jal
-                RegWrite_E <= `YES;
-                ImmSrc   <= `Ext_ImmJ;
-                ALUSrc   <= `ALU_IMM;
-                MemWrite_E <= `NO;
+                rf_we <= `YES;
+                sel_ext   <= `Ext_ImmJ;
+                alu_control   <= `ALU_IMM;
+                dmem_we <= `NO;
                 ResultSrc<= `FROM_PC_;
 
                 ALUOp    <= `ALUOP_J_UAL;
                 PCSrc   <= `PC_J_OFFSET;
             end
             `OPCODE_LUI: begin // lui
-                RegWrite_E <= `YES;
-                ImmSrc   <= `Ext_ImmU;
-                ALUSrc   <= `ALU_IMM;
-                MemWrite_E <= `NO;
+                rf_we <= `YES;
+                sel_ext   <= `Ext_ImmU;
+                alu_control   <= `ALU_IMM;
+                dmem_we <= `NO;
                 ResultSrc<= `FROM_IMM;
                 ALUOp    <= `ALUOP_J_UAL;
 
@@ -91,10 +91,10 @@ module Op_Decoder(Zero,inst,RegWrite_E,ImmSrc,ALUSrc,MemWrite_E,ResultSrc,PCSrc,
                  PCSrc   <= `PC_NOJUMP;
             end
             default: begin // nop
-                RegWrite_E <= `NO;
-                ImmSrc   <= `Ext_ImmI;
-                ALUSrc   <= `ALU_REG;
-                MemWrite_E <= `NO;
+                rf_we <= `NO;
+                sel_ext   <= `Ext_ImmI;
+                alu_control   <= `ALU_REG;
+                dmem_we <= `NO;
                 ResultSrc<= `FROM_ALU;
                 ALUOp    <= `ALUOP_ITYPE;
 

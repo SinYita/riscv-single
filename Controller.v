@@ -2,7 +2,7 @@
 `include "ALU_Decoder.v"
 `include "Op_Decoder.v"
 
-module Controller(Zero,inst, RegWrite_E, ImmSrc, ALUSrc, MemWrite_E, ResultSrc, PCSrc, funct3, funct7, ALUControl);
+module Controller(Zero,inst, rf_we, sel_ext, alu_control, dmem_we, ResultSrc, PCSrc, funct3, funct7, alu_control);
 
 
     input Zero;
@@ -11,13 +11,13 @@ module Controller(Zero,inst, RegWrite_E, ImmSrc, ALUSrc, MemWrite_E, ResultSrc, 
     input [6:0] funct7;        
 
     
-    output RegWrite_E;           
-    output ALUSrc;              
-    output MemWrite_E;           
+    output rf_we;           
+    output alu_control;              
+    output dmem_we;           
     output [2:0] ResultSrc;          
     output PCSrc;               
-    output [2:0] ImmSrc;       
-    output [3:0] ALUControl;  
+    output [2:0] sel_ext;       
+    output [3:0] alu_control;  
 
     wire [2:0] ALUOp;           
     wire [6:0] Op = inst[6:0];  
@@ -26,10 +26,10 @@ module Controller(Zero,inst, RegWrite_E, ImmSrc, ALUSrc, MemWrite_E, ResultSrc, 
     Op_Decoder main_decoder(
         .Zero(Zero),
         .inst(inst),                    
-        .RegWrite_E(RegWrite_E),        
-        .ImmSrc(ImmSrc),               
-        .ALUSrc(ALUSrc),
-        .MemWrite_E(MemWrite_E),      
+        .rf_we(rf_we),        
+        .sel_ext(sel_ext),               
+        .alu_control(alu_control),
+        .dmem_we(dmem_we),      
         .ResultSrc(ResultSrc),
         .PCSrc(PCSrc),
         .ALUOp(ALUOp)
@@ -40,7 +40,7 @@ module Controller(Zero,inst, RegWrite_E, ImmSrc, ALUSrc, MemWrite_E, ResultSrc, 
         .funct3(funct3),
         .funct7(funct7),
         .op(Op),                     
-        .ALUControl(ALUControl)
+        .alu_control(alu_control)
     );
 
 endmodule

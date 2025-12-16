@@ -13,11 +13,11 @@ module Single_Cycle_Top(clk,rst);
 
     input clk,rst;
 
-    wire [31:0] PC_Top,RD_Instr,RD1_Top,Imm_Ext_Top,ALUResult,ReadData,PCPlus4,RD2_Top,SrcB,Result;
-    wire RegWrite,MemWrite,ALUSrc,PCSrc,Zero;
-    wire [2:0] ImmSrc;
+    wire [31:0] PC_Top,RD_Instr,RD1_Top,Imm_Ext_Top,sel_result,ReadData,PCPlus4,RD2_Top,SrcB,Result;
+    wire RegWrite,MemWrite,alu_control,PCSrc,Zero;
+    wire [2:0] sel_ext;
     wire [2:0] ResultSrc;
-    wire [3:0] ALUControl_Top;
+    wire [3:0] alu_control_Top;
 
     PC PC(
         .clk(clk),
@@ -53,37 +53,37 @@ module Single_Cycle_Top(clk,rst);
 
     Sign_Extend Sign_Extend(
         .Ins(RD_Instr),
-        .Imm_src(ImmSrc),
+        .sel_ext(sel_ext),
         .ImmExt(Imm_Ext_Top)
     );
 
     Mux Mux_Register_to_ALU(
         .in_1(RD2_Top),
         .in_2(Imm_Ext_Top),
-        .sel(ALUSrc),
+        .sel(alu_control),
         .out(SrcB)
     );
 
     ALU ALU(
         .A(RD1_Top),
         .B(SrcB),
-        .ALUControl(ALUControl_Top),
-        .Result(ALUResult),
+        .alu_control(alu_control_Top),
+        .Result(sel_result),
         .Zero(Zero)
     );
 
     Controller Controller(
         .Zero(Zero),
         .inst(RD_Instr),
-        .RegWrite_E(RegWrite),
-        .ImmSrc(ImmSrc),
-        .ALUSrc(ALUSrc),
-        .MemWrite_E(MemWrite),
+        .rf_we(RegWrite),
+        .sel_ext(sel_ext),
+        .alu_control(alu_control),
+        .dmem_we(MemWrite),
         .ResultSrc(ResultSrc),
         .PCSrc(PCSrc),
         .funct3(RD_Instr[14:12]),
         .funct7(RD_Instr[31:25]),
-        .ALUControl(ALUControl_Top)
+        .alu_control(alu_control_Top)
     );
 
     Data_Memory Data_Memory(
@@ -91,15 +91,15 @@ module Single_Cycle_Top(clk,rst);
                         .rst(rst),
                         .WE(MemWrite),
                         .WD(RD2_Top),
-                        .A(ALUResult),
+                        .A(sel_result),
                         .RD(ReadData)
     );
 
     // 4-to-1 Result Multiplexer (can be regarded as a multilevel mux)
     // this is used to select the data to be written back to the register file
-    assign Result = (ResultSrc == `FROM_ALU) ? ALUResult :
+    assign Result = (ResultSrc == `FROM_ALU) ? sel_result :
                    (ResultSrc == `FROM_MEM) ? ReadData :
                    (ResultSrc == `FROM_PC_) ? (PC_Top + 4) :
-                   (ResultSrc == `FROM_IMM) ? Imm_Ext_Top : ALUResult;
+                   (ResultSrc == `FROM_IMM) ? Imm_Ext_Top : sel_result;
 
 endmodule

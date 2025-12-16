@@ -1,14 +1,14 @@
 `include "define.v"
 
-module ALU(A, B, ALUControl, Result, Zero);
+module ALU(A, B, alu_control, Result, Zero);
    input  signed [31:0] A, B;
-   input         [3:0]  ALUControl;  
+   input         [3:0]  alu_control;  
    output Zero;  
    
    output reg [31:0] Result;
        
    always @(*) begin
-      case (ALUControl)
+      case (alu_control)
       `ALU_ADD: Result = A + B;
       `ALU_SUB: Result = A - B; 
       `ALU_XOR: Result = A ^ B;

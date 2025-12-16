@@ -13,7 +13,7 @@
 `define ALU_LESS_THAN_SIGNED                    4'b1011
 
 
-// Imm_Src
+// sel_ext
 `define Ext_ImmI      3'b000 // Immediate extension for I-type instructions
 `define Ext_ImmS      3'b001
 `define Ext_ImmB      3'b010
@@ -43,7 +43,7 @@
 `define OPCODE_JAL    7'b110_1111  // J-Type(jal)
 `define OPCODE_LUI    7'b011_0111  // U-Type(lui)
 
-// IMMSRC
+// sel_ext
 `define ALU_IMM 1'b1 // the second ALU operand is immediate
 `define ALU_REG 1'b0 // the second ALU operand is register
 

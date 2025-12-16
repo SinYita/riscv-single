@@ -1,12 +1,12 @@
 `include "define.v"
 
-module Sign_Extend(Ins,Imm_src,ImmExt);
-    input [2:0] Imm_src;
+module Sign_Extend(Ins,sel_ext,ImmExt);
+    input [2:0] sel_ext;
     input [31:0] Ins;
     output reg [31:0] ImmExt;
 
     always@(*) begin
-        case(Imm_src)
+        case(sel_ext)
         `Ext_ImmI: ImmExt <= {{21{Ins[31]}}, Ins[30:25], Ins[24:21], Ins[20]};
         `Ext_ImmS: ImmExt <= {{21{Ins[31]}}, Ins[30:25], Ins[11:8], Ins[7]};
         `Ext_ImmB: ImmExt <= {{20{Ins[31]}}, Ins[7], Ins[30:25], Ins[11:8], 1'b0};
