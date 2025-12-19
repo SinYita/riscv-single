@@ -1,153 +1,69 @@
-# RISC-V Single Cycle CPU
+# RISC-V CPU (FSM / Multi-Cycle style)
 
-A complete implementation of a 32-bit single-cycle RISC-V processor in Verilog, supporting a subset of the RV32I base instruction set. This project focuses on essential components including the controller, immediate extension unit, ALU interface, and next-PC logic.
+A Verilog implementation of a 32-bit RISC-V processor (subset of RV32I) that uses a finite-state machine (FSM) based controller to sequence multi-cycle instruction execution. The design separates fetch/decode/execute/memory/write-back into controllable steps rather than executing every instruction in a single clock cycle.
 
 
 ## Project Structure
-
-```
-riscv-single/
-├── src/                          # Verilog source files
-├── testbench/                    # Testbench files
-├── assembly/                     # Assembly programs and machine code
-├── assets/                       # Documentation assets
-├── compiler_helper.py            # Automated compilation tool
-└── README.md                     # This file
-```
-
-## Supported Instructions
-
-The CPU implements the following RV32I instructions:
-
-### Arithmetic & Logic
-- **R-type**: `ADD`, `SUB`, `AND`, `OR`, `XOR`, `SLL`, `SRL`, `SRA`, `SLT`, `SLTU`
-- **I-type**: `ADDI`, `ANDI`, `ORI`, `XORI`, `SLLI`, `SRLI`, `SRAI`, `SLTI`, `SLTIU`
-
-### Memory Access
-- **Load**: `LW` (Load Word)
-- **Store**: `SW` (Store Word)
-
-### Control Flow
-- **Branch**: `BEQ` (Branch if Equal)
-- **Jump**: `JAL` (Jump and Link)
-
-### Upper Immediate
-- **U-type**: `LUI` (Load Upper Immediate)
-
-## Getting Started
-
-### Prerequisites
-
-- **Icarus Verilog** (iverilog): For compilation
-- **VVP**: Verilog simulation runtime
-- **Python 3**: For the compilation helper script
-
-Install on Ubuntu/Debian:
-```bash
-sudo apt-get install iverilog python3
-```
-
-## Using compiler_helper.py
-
-The `compiler_helper.py` script automates module compilation and testing.
-
-**Basic usage:**
-```bash
-./compiler_helper.py Module_name    # Test specific module
-./compiler_helper.py <module_name>  # Compile and test a module
-./compiler_helper.py --all          # Run all tests
-./compiler_helper.py -h             # Show all options
-```
-
-## Manual Testing
-
-```bash
-cd testbench
-iverilog -I ../src -o alu_test ALU_tb.v
-vvp alu_test
-gtkwave ALU_tb.vcd  # View waveform
-```
-
 ## CPU Architecture
 
-The single-cycle CPU follows a classic datapath design with some key enhancements:
+The project uses a datapath controlled by a single finite-state machine (`main_fsm`) located in the `controller` hierarchy. Instructions are executed across a small sequence of micro-steps (fetch → decode → execute → memory → write-back) when necessary; the FSM drives multiplexors and enables for the datapath rather than performing all work in one cycle.
 
-### Overall Architecture
+### Top-level and overview
 
-![CPU Top-Level Design](assets/cpu.drawio.png)
-*Figure: Complete CPU architecture showing all major components and data paths*
+![Overall Design](assets/overall%20design.svg)
 
-The CPU executes instructions in the following stages:
+- Top-level module: `Single_Cycle_Top.v` / `rv_mc` — instantiates `controller`, `datapath`, and `mem`.
+- Instruction and data memory: `mem.v` (RAM[0:1023], 32-bit words).
 
-1. **Fetch**: PC → Instruction Memory → Instruction
-2. **Decode**: Instruction → Controller → Control Signals
-3. **Execute**: ALU performs operation
-4. **Memory**: Load/Store access Data Memory
-5. **Write Back**: Result written to Register File
+### Datapath components (files)
 
-All operations complete in one clock cycle.
+- PC register: `flopenr.v` (write enabled by `we_pc`).
+- Instruction register / OldPC / ALUOut / MDR: `flopenr.v` and `flopr.v` instances in `datapath.v` (`instr`, `old_pc`, `alu_out_reg`, `data_out`).
+- Register file: `Register_File.v` (32 × 32-bit registers, write on `WE` with write-back index `instr[11:7]`).
+- Immediate extension: `Sign_Extend.v` (`imm_ext` based on `sel_ext`).
+- ALU and ALU result registers: `ALU.v` + `flopr` for `alu_out_reg`.
+- Muxes for ALU sources and result selection: `mux2.v`, `mux3.v`, `mux4.v` used by `datapath.v`.
 
-### NPC (Next Program Counter) Module
+Datapath control signals from the FSM/controller: `sel_alu_src_a`, `sel_alu_src_b`, `alu_op`, `sel_result`, `sel_mem_addr`, `we_mem`, `we_ir`, `we_rf`, `pc_update`.
 
-![NPC Module](assets/NPC.drawio.png)
+### FSM (controller)
 
-*Figure: NPC module architecture*
+![FSM](assets/fsm.svg)
 
-A dedicated NPC module computes the next program counter value. It supports two update modes:
+- `main_fsm.v` implements the microstate machine (states include `S0_FETCH`, `S1_DECODE`, `S2_EXE_ADDR`, `S3_MEM_RD`, `S4_WB_MEM`, `S5_MEM_WR`, `S6_EXE_R`, `S7_WB_ALU`, `S8_BEQ`, `S9_EXE_I`, `S10_JAL`, `S11_LUI`).
+- The `controller` module connects `main_fsm` to the datapath and to the ALU decoder logic.
 
-- **PC_NOJUMP**: Increments PC by 4 to fetch the next sequential instruction
-- **PC_J_OFFSET**: Computes next PC as current address plus sign-extended immediate (for branches and jumps)
+### ALU decoding
 
-A multiplexer controlled by the `PCSrc` signal selects between these two modes.
+- The design no longer uses a separate two-level decoder UI; instead the FSM sets `alu_op` and the ALU decoder logic in the code uses `funct3`/`funct7` as needed to derive `alu_control` for `ALU.v`.
 
-### Two-Level Controller Design
+### Defines and constants
 
-![Controller Module](assets/Controller.drawio.png)
+- All opcodes, ALU ops, immediate types and write-back selectors live in `define.v` (e.g. `OPCODE_JAL`, `ALUOP_LOAD_STORE`, `WB_PC4`).
 
-*Figure: Controller with two-level decoding strategy*
+This layout mirrors the RTL: the FSM in `main_fsm.v` sequences micro-operations and produces a small set of control signals that the datapath uses to compute results, access memory, and perform register write-backs over multiple cycles when required.
+## CPU Architecture
 
-The controller is separated into two submodules for improved clarity:
+The CPU follows a classic datapath design controlled by an FSM-based controller; instructions may take multiple micro-steps (cycles) to complete when required.
 
-**First-Level Decoder (Op_Decoder)**:
 
-![Op_Decoder](assets/first.png)
-*Figure: First-level decoder classifies instructions by type*
+## Reset behavior and common pitfalls
 
-- Performs initial decoding to determine instruction category (I/S/B/U/J-type)
-- Generates coarse ALU operation class
-- Outputs 3-bit `ALUOp` signal for second-level decoding
+- **Reset** is active-low in this implementation: `rst = 0` asserts reset, `rst = 1` releases it. Top-level testbenches in this repo follow that convention.
+- **PC** and register file are cleared on reset.
+- **Instruction memory** is loaded in the testbench via `$readmemh("memfile.hex", dut.MEM.RAM)` by default.
 
-**Second-Level Decoder (ALU_Decoder)**:
+Common pitfall: `mem.v` allocates `RAM[0:1023]` but your `memfile.hex` may contain far fewer words. If the CPU fetches past the initialized words you will see X-valued instructions and unpredictable writes (registers becoming `xxxxxxxx`). Fixes:
+- Pad `memfile.hex` with NOPs (`00000013`) to the range you will execute, or
+- Use `$readmemh("memfile.hex", dut.MEM.RAM, 0, LAST_INDEX)` to limit the load range, or
+- Initialize RAM in `mem.v` to a safe default (e.g., 0).
 
-![ALU_Decoder](assets/second.png)
-*Figure: Second-level decoder resolves exact ALU operations*
-
-- Receives `ALUOp` signal and instruction fields
-- Resolves into precise ALU control signals
-- Handles function code (`funct3`, `funct7`) interpretation
-
-**Branch Detection**: Branch equality (`BEQ`) is implemented using `ALU_XOR` - when two numbers are identical, their XOR result is zero. The `JAL` instruction is handled directly by the NPC module.
-
-### Macro Definitions
-
-![Define Tables](assets/define.png)
-*Figure: Macro definition tables for opcodes and control signals*
-
-The implementation extensively uses Verilog macros to improve code readability and maintainability. All opcodes, ALU operations, and control signals are defined as named constants in `define.v`.
-
-## Reset Behavior
-
-- **Reset Signal**: Active-low (`rst = 0` activates reset)
-- **PC Reset**: Clears to `0x00000000`
-- **Registers**: All cleared to zero
-- **Memory**: Instruction memory loaded from `memfile.hex`
-
-## Memory Map
+## Memory map
 
 - **Instruction Memory**: 0x00000000 - 0x00000FFF (4KB, 1024 words)
 - **Data Memory**: 0x00000000 - 0x00000FFF (4KB, 1024 words)
 
-Note: Instruction and data memories are separate (Harvard architecture).
+Instruction and data memories are separate (Harvard-like layout for this simple model).
 
 ## Known Limitations
 
@@ -167,7 +83,7 @@ This project is open source and available under the MIT License.
 
 ## Acknowledgments
 
-This project is based on the RISC-V ISA specification and standard single-cycle CPU design patterns. The implementation follows educational CPU design principles while maintaining compatibility with the RISC-V instruction encoding format.
+This project is based on the RISC-V ISA specification. The implementation follows educational CPU design principles and uses an FSM/multi-cycle approach to sequence instruction execution while maintaining compatibility with RISC-V instruction encodings.
 
 ## Additional Resources
 
