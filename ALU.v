@@ -1,30 +1,37 @@
 `include "define.v"
 
-module ALU(A, B, alu_control, Result, Zero);
-   input  signed [31:0] A, B;
-   input         [3:0]  alu_control;  
-   output Zero;  
+module ALU(
+    input  signed [31:0] A, B,
+    input         [3:0]  alu_control,  
+    output [31:0]        Result,
+    output               Zero
+);
    
-   output reg [31:0] Result;
+   reg [31:0] res;
        
    always @(*) begin
       case (alu_control)
-      `ALU_ADD: Result = A + B;
-      `ALU_SUB: Result = A - B; 
-      `ALU_XOR: Result = A ^ B;
-      `ALU_OR:  Result = A | B;
-      `ALU_AND: Result = A & B;
-      `ALU_SHIFTL: Result = A << B[4:0]; 
-      `ALU_SHIFTR: Result = A >> B[4:0];  
-      `ALU_SHIFTR_ARITH: Result = A >>> B[4:0];  
-      `ALU_LESS_THAN_SIGNED: Result = ($signed(A) < $signed(B)) ? 32'b1 : 32'b0;  // SLT
-      `ALU_LESS_THAN: Result = ($unsigned(A) < $unsigned(B)) ? 32'b1 : 32'b0;  // SLTU
-      
-      `ALU_NONE: Result = A;  // Pass through A
-      default: Result = A;
+          `ALU_ADD:         res = A + B;
+          `ALU_SUB:         res = A - B; 
+          `ALU_XOR:         res = A ^ B;
+          `ALU_OR:          res = A | B;
+          `ALU_AND:         res = A & B;
+          `ALU_SHIFTL:      res = A << B[4:0]; 
+          `ALU_SHIFTR:      res = A >> B[4:0];  
+          `ALU_SHIFTR_ARITH: res = $signed(A) >>> B[4:0];
+          
+          `ALU_LESS_THAN_SIGNED: res = (A < B) ? 32'b1 : 32'b0;  
+          
+          `ALU_LESS_THAN:        res = ($unsigned(A) < $unsigned(B)) ? 32'b1 : 32'b0; 
+          
+          `ALU_COPY_B:      res = B; 
+          
+          `ALU_NONE:        res = A;
+          default:          res = A;
       endcase
    end 
    
-   assign Zero = (Result == 32'b0);  
+   assign Result = res;
+   assign Zero = (res == 32'b0);  
 
 endmodule
