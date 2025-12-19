@@ -3,7 +3,6 @@
 module rv_mc_tb();
     reg clk;
     reg rst;
-    // helpers for JAL check
     integer jal_rd;
     reg [31:0] jal_returned;
     reg [31:0] jal_expect;
@@ -57,34 +56,33 @@ module rv_mc_tb();
         end
     end
 
-    // Snapshot of register file to detect changes
+
     reg [31:0] prev_regs [31:0];
 
-    // initialize snapshot after reset release
+
     integer ri;
     initial begin
         for (ri = 0; ri < 32; ri = ri + 1) prev_regs[ri] = 32'h0;
     end
 
-    // On every cycle where Register File write enable is asserted, compare and print changed registers
+
     always @(posedge clk) begin
         if (rst) begin
             if (dut.CTRL.we_rf) begin
                 $display("%0t PC=%h instr=%h ALUOp=%b funct3=%b f7b5=%b ALUctrl=%b", $time, dut.DP.pc, dut.DP.instr, dut.CTRL.alu_op, dut.DP.instr[14:12], dut.DP.instr[30], dut.CTRL.alu_control);
-                // compare registers and print only the ones that changed
                 for (ri = 0; ri < 32; ri = ri + 1) begin
                     if (dut.DP.rf.Register[ri] !== prev_regs[ri]) begin
                         $display("%0t REG[%0d] changed: %h -> %h", $time, ri, prev_regs[ri], dut.DP.rf.Register[ri]);
                     end
                 end
-                // If this write-back is from memory (LW), sel_result==2'b01
+    
                 if (dut.CTRL.sel_result == 2'b01) begin
                     $display("%0t LOAD: rd=%0d <- MEM[%h] = %h", $time, dut.DP.instr[11:7], dut.DP.addr, dut.DP.result);
                 end
-                // If this write-back corresponds to JAL (opcode 1101111)
+
                 if (dut.DP.instr[6:0] == 7'b1101111) begin
                     jal_rd = dut.DP.instr[11:7];
-                    jal_returned = dut.DP.rf.Register[jal_rd];
+                    jal_returned = dut.DP.result;
                     jal_expect = dut.DP.old_pc + 32'd4;
                     $display("%0t JAL: rd=x%0d returned=%h old_pc=%h expect(old_pc+4)=%h imm_ext=%h PC=%h", $time, jal_rd, jal_returned, dut.DP.old_pc, jal_expect, dut.DP.imm_ext, dut.DP.pc);
                     if (jal_returned === jal_expect)
@@ -92,13 +90,12 @@ module rv_mc_tb();
                     else
                         $display("%0t JAL status: RETURN MISMATCH", $time);
                 end
-                // update snapshot
                 for (ri = 0; ri < 32; ri = ri + 1) prev_regs[ri] = dut.DP.rf.Register[ri];
             end
         end
     end
 
-    // Print memory writes when they occur
+
     always @(posedge clk) begin
         if (rst && dut.CTRL.we_mem) begin
             $display("%0t STORE: MEM[%h] <- %h (from rs2)", $time, dut.DP.addr, dut.DP.write_data);

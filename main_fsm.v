@@ -154,6 +154,7 @@ module main_fsm(
                 sel_alu_src_a = 2'b01; // ALU A = PC
                 sel_alu_src_b = 2'b10; // ALU B = 4
                 alu_op = 2'b00;        // ADD
+                pc_update = 1'b1;          // PC = PC + 4
                 next_state = S7_WB_ALU; //
             end
 

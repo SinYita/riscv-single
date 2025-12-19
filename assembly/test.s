@@ -1,4 +1,4 @@
-lui  x6, 0x00010        # x6 = 0x00010000 (65536)
+lui  x6, 0x00010        # x6 = 0x00010000 (65536) 
 addi x2, x0, 5          # x2 = 5
 addi x3, x0, 12         # x3 = 12
 addi x7, x3, -9         # x7 = (12 - 9) = 3
@@ -20,6 +20,6 @@ jal  x3, end            # jump to end, x3 = return address
 addi x2, x0, 1          # shouldn't happen
 end:
 add  x2, x2, x9         # x2 = (7 + 18) = 25
-sw   x2, 0x20(x3)       # mem[100] = 25
+sw   x2, 0x20(x3)       # mem[104] = 25
 done:
 beq  x2, x2, done       # infinite loop
