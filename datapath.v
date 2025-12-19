@@ -17,17 +17,17 @@ module datapath(
 
     wire [31:0] pc, pc_next, old_pc;
     wire [31:0] imm_ext;
-    wire [31:0] rd1, rd2, a_reg, b_reg;
-    wire [31:0] src_a, src_b;
-    wire [31:0] result, alu_result, alu_out_reg, data_out;
+    wire [31:0] rd1, rd2, SrcA, SrcB,A,data_out;
+    wire [31:0] result, alu_result, alu_out_reg;
 
     // --- PC 逻辑 ---
     // PC 寄存器 (带使能)
+    assign pc_next = result;
     flopenr #(32) PC_reg(
         .clk(clk), 
         .rst(rst), 
         .en(we_pc), 
-        .d(result), 
+        .d(pc_next), 
         .q(pc)
     );
     
@@ -35,14 +35,12 @@ module datapath(
     // AdrSrc Mux: 选择 PC 或 ALUOut 作为访存地址
     mux2 #(32) addr_mux(
         .d0(pc), 
-        .d1(alu_out_reg), 
+        .d1(result), 
         .s(sel_mem_addr), 
         .y(addr)
     );
-    // --- 非建筑状态寄存器 (Non-architectural Registers) ---
     
-    // IR: Instruction Register (带使能 we_ir)
-    // 根据 Figure 1，OldPC 存的是当前指令的地址
+//memflop2
     flopenr #(32) instr_reg(
         .clk(clk), 
         .rst(rst), 
@@ -50,6 +48,7 @@ module datapath(
         .d(read_data), 
         .q(instr)
     );
+    //memflop1
     flopenr #(32) old_pc_reg(
         .clk(clk), 
         .rst(rst), 
@@ -57,16 +56,14 @@ module datapath(
         .d(pc), 
         .q(old_pc)
     );
-    // MDR: Memory Data Register (Data Reg)
-    flopr #(32) data_reg(
+    // dataflop
+    flopr #(32) datSrcA(
         .clk(clk), 
         .rst(rst), 
         .d(read_data), 
         .q(data_out)
     );
 
-    // --- 寄存器堆与立即数扩展 ---
-    // Result 作为写回数据 (WD3)
     Register_File rf(
         .clk(clk), 
         .WE(we_rf), 
@@ -84,47 +81,43 @@ module datapath(
         .ImmExt(imm_ext)
     );
 
-    // A 和 B 寄存器 (暂存 RD1, RD2)
+//reg_f1
     flopr #(32) rd1_reg(
         .clk(clk), 
         .rst(rst), 
         .d(rd1), 
-        .q(a_reg)
+        .q(A)
     );
+    //reg_f2
     flopr #(32) rd2_reg(
         .clk(clk), 
         .rst(rst), 
         .d(rd2), 
-        .q(b_reg)
+        .q(write_data)
     );
     
-    assign write_data = b_reg; // 输出给 Memory 的写数据
 
-    // --- ALU 源操作数选择 ---
-    // ALUSrcA Mux
-    mux4 #(32) src_a_mux(
+    mux3 #(32) src_a_mux(
         .d0(pc), 
         .d1(old_pc), 
-        .d2(a_reg), 
-        .d3(32'b0), 
+        .d2(A), 
         .s(sel_alu_src_a), 
-        .y(src_a)
+        .y(SrcA)
     );
 
     // ALUSrcB Mux
-    mux4 #(32) src_b_mux(
-        .d0(b_reg), 
+    mux3 #(32) src_b_mux(
+        .d0(write_data), 
         .d1(imm_ext), 
         .d2(32'd4), 
-        .d3(32'b0), 
         .s(sel_alu_src_b), 
-        .y(src_b)
+        .y(SrcB)
     );
 
     // --- ALU ---
     ALU alu_inst(
-        .A(src_a), 
-        .B(src_b), 
+        .A(SrcA), 
+        .B(SrcB), 
         .alu_control(alu_control), 
         .Result(alu_result), 
         .Zero(zero)

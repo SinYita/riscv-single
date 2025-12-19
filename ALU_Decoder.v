@@ -4,9 +4,12 @@ module ALU_Decoder(
     input  [1:0] ALUOp,   
     input  [2:0] funct3,
     input  [6:0] funct7,
+    input opb5,
     output reg [3:0] alu_control
 );
 
+    wire r_sub;
+    assign r_sub = funct7[5] & opb5;
     always @(*) begin
         case (ALUOp)
             `ALUOP_LOAD_STORE: alu_control = `ALU_ADD; 
@@ -14,7 +17,7 @@ module ALU_Decoder(
             `ALUOP_RTYPE_BRANCH: begin
                 case (funct3)
                     3'b000: begin
-                        if (funct7[5])
+                        if (r_sub)
                             alu_control = `ALU_SUB;
                         else
                             alu_control = `ALU_ADD;

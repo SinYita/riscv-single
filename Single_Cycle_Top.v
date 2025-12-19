@@ -25,7 +25,6 @@ module rv_mc(
         .zero(zero),
         .sel_alu_src_a(sel_alu_src_a),
         .sel_alu_src_b(sel_alu_src_b),
-        .alu_op(alu_op),
         .sel_result(sel_result),
         .sel_mem_addr(sel_mem_addr),
         .we_mem(we_mem),
@@ -33,8 +32,7 @@ module rv_mc(
         .we_ir(we_ir),
         .we_rf(we_rf),
         .sel_ext(sel_ext),
-        .alu_control(alu_control),
-        .branch(branch)     // 分支指令标识
+        .alu_control(alu_control)
     );
 
     datapath DP (

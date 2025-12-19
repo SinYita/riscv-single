@@ -33,18 +33,3 @@
 `define OPCODE_BEQ              7'b1100011
 `define OPCODE_JAL              7'b1101111
 `define OPCODE_LUI              7'b0110111 
-
-// --- Control Signal Values ---
-`define ALU_IMM                 1'b1 
-`define ALU_REG                 1'b0 
-
-`define PC4                     1'b0 
-`define PCI                     1'b1 
-
-`define YES                     1'b1
-`define NO                      1'b0
-
-// --- Register Write-Back Select (2-bit) ---
-`define WB_ALU                  2'b00 // ALU
-`define WB_MEM                  2'b01 // Data Memory
-`define WB_PC4                  2'b10 // PC + 4
