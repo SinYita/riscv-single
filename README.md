@@ -65,14 +65,6 @@ Common pitfall: `mem.v` allocates `RAM[0:1023]` but your `memfile.hex` may conta
 
 Instruction and data memories are separate (Harvard-like layout for this simple model).
 
-## Known Limitations
-
-**Initial PC Behavior**: The machine code must begin with a NOP instruction (00000000). On reset release, the NPC logic calculates PC+4 immediately, causing the first clock edge to skip address 0x00. This will be addressed in future versions.
-
-## Extending the Design
-
-To add new instructions: Update `define.v` → Modify `Op_Decoder.v` and `ALU_Decoder.v` → Implement in `ALU.v` → Add testbenches.
-
 ## License
 
 This project is open source and available under the MIT License.
