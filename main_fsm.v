@@ -72,15 +72,15 @@ module main_fsm(
                 we_ir = 1'b1;          // 写指令寄存器 
                 sel_alu_src_a = 2'b00; // ALU A = PC 
                 sel_alu_src_b = 2'b10; // ALU B = 4 
-                alu_op = 2'b00;        // ADD [cite: 105]
+                alu_op = 2'b00;       
                 sel_result = 2'b10;    // Result = ALU Result
                 pc_update = 1'b1;          // PC = PC + 4 
                 next_state = S1_DECODE;
             end
 
             S1_DECODE: begin
-                sel_alu_src_a = 2'b01;
-                sel_alu_src_b = 2'b01;
+                sel_alu_src_a = 2'b01; // old_pc
+                sel_alu_src_b = 2'b01; // Imm_ext
                 alu_op = 2'b00;
                 case(op)
                     7'b0000011, 7'b0100011: next_state = S2_EXE_ADDR;  // lw, sw
@@ -102,34 +102,34 @@ module main_fsm(
             end
 
             S3_MEM_RD: begin
-                sel_result = 2'b00;    // 使用 ALUOut
-                sel_mem_addr = 1'b1;   // 内存地址选 ALUOut
+                sel_result = 2'b00;    
+                sel_mem_addr = 1'b1;   
                 next_state = S4_WB_MEM;
             end
 
             S4_WB_MEM: begin
-                sel_result = 2'b01;    // 选择 Data Reg
-                we_rf = 1'b1;          // 写回寄存器堆
+                sel_result = 2'b01;    
+                we_rf = 1'b1;          
                 next_state = S0_FETCH;
             end
 
             S5_MEM_WR: begin
                 sel_result = 2'b00;    
                 sel_mem_addr = 1'b1;   
-                we_mem = 1'b1;         // 执行内存写
+                we_mem = 1'b1;         
                 next_state = S0_FETCH;
             end
 
             S6_EXE_R: begin
                 sel_alu_src_a = 2'b10; 
-                sel_alu_src_b = 2'b00; // ALU B = rd2_reg
-                alu_op = 2'b10;        // R-type ALU
+                sel_alu_src_b = 2'b00; 
+                alu_op = 2'b10;        
                 next_state = S7_WB_ALU;
             end
 
             S7_WB_ALU: begin
-                sel_result = 2'b00;    // 使用 ALUOut
-                we_rf = 1'b1;          // 写回寄存器堆
+                sel_result = 2'b00;    
+                we_rf = 1'b1;          
                 next_state = S0_FETCH;
             end
 
@@ -145,18 +145,16 @@ module main_fsm(
                 sel_alu_src_b = 2'b00;
                 alu_op = 2'b01;        // Sub
                 sel_result = 2'b00;
-                branch = 1'b1;         // 触发分支判断
+                branch = 1'b1;         
                 next_state = S0_FETCH;
             end
 
             S10_JAL: begin
-                // Compute jump target = old_pc + imm, and update PC
-                sel_alu_src_a = 2'b01; // ALU A = old_pc
-                sel_alu_src_b = 2'b10; // ALU B = ImmExt
+                sel_result = 2'b00;    // use alu cached
+                sel_alu_src_a = 2'b01; // ALU A = PC
+                sel_alu_src_b = 2'b10; // ALU B = 4
                 alu_op = 2'b00;        // ADD
-                sel_result = 2'b00;    // use current ALU result (alu_result)
-                pc_update = 1'b1;      // enable PC update
-                next_state = S7_WB_ALU; // 写回寄存器堆
+                next_state = S7_WB_ALU; //
             end
 
             S11_LUI: begin
@@ -164,7 +162,7 @@ module main_fsm(
                 sel_alu_src_b = 2'b01; // ALU B = Imm
                 alu_op = 2'b11;
                 sel_result = 2'b00;
-                next_state = S7_WB_ALU; // 写回寄存器堆
+                next_state = S7_WB_ALU;
             end
         endcase
     end

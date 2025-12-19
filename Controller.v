@@ -36,7 +36,7 @@ module controller(
         .opb5(op[5]),
         .ALUOp(alu_op),
         .funct3(funct3),
-        .funct7({1'b0, funct7b5, 5'b0}),
+        .funct7b5(funct7b5),
         .alu_control(alu_control)
     );
 
