@@ -1,97 +1,59 @@
-`include "define.v"
-
-module Single_Cycle_Top(
+module rv_mc(
     input clk,
     input rst
 );
+    wire [31:0] instr, addr, write_data, read_data;
+    wire [1:0]  sel_alu_src_a, sel_alu_src_b, alu_op, sel_result;
+    wire [2:0]  sel_ext;
+    wire [3:0]  alu_control;
+    wire        sel_mem_addr, we_mem, we_pc, we_ir, we_rf, branch, zero;
+    wire       we_pc_to_dp;
+    mem MEM (
+        .clk(clk),
+        .WE(we_mem),
+        .A(addr),
+        .WD(write_data),
+        .RD(read_data)
+    );
 
-    wire [31:0] PC_Current, PC_Next;
-    wire [31:0] Instr;
-    wire [31:0] RD1, RD2, WD3;
-    wire [31:0] Imm_Ext;
-    wire [31:0] ALU_Out, SrcB, Mem_Data;
-    
-    wire RegWrite, MemWrite, ALUSrcB, PCSrc, Zero;
-    wire [2:0] sel_ext;
-    wire [1:0] sel_wb;     
-    wire [3:0] alu_ctrl;
-    PC pc_inst(
+    controller CTRL (
         .clk(clk),
         .rst(rst),
-        .NPC(PC_Next),
-        .PC(PC_Current)
-    );
-
-    NPC npc_inst(
-        .PC(PC_Current),
-        .PCSrc(PCSrc),
-        .IMMEXT(Imm_Ext),
-        .NPC(PC_Next)
-    );
-    
-    Instruction_Memory imem_inst(
-        .rst(rst),
-        .A(PC_Current),     
-        .RD(Instr)         
-    );
-
-    Register_File regfile_inst(
-        .clk(clk),
-        .rst(rst),
-        .WE(RegWrite),
-        .A1(Instr[19:15]),
-        .A2(Instr[24:20]),
-        .A3(Instr[11:7]),
-        .WD(WD3),         
-        .RD1(RD1),
-        .RD2(RD2)
-    );
-
-    Sign_Extend ext_inst(
-        .Ins(Instr),
+        .op(instr[6:0]),
+        .funct3(instr[14:12]),
+        .funct7b5(instr[30]),
+        .zero(zero),
+        .sel_alu_src_a(sel_alu_src_a),
+        .sel_alu_src_b(sel_alu_src_b),
+        .alu_op(alu_op),
+        .sel_result(sel_result),
+        .sel_mem_addr(sel_mem_addr),
+        .we_mem(we_mem),
+        .we_pc(we_pc_to_dp),      // FSM 输出的基本 PC 写信号
+        .we_ir(we_ir),
+        .we_rf(we_rf),
         .sel_ext(sel_ext),
-        .ImmExt(Imm_Ext)
+        .alu_control(alu_control),
+        .branch(branch)     // 分支指令标识
     );
 
-    Mux alu_src_mux(
-        .in_1(RD2),
-        .in_2(Imm_Ext),
-        .sel(ALUSrcB),
-        .out(SrcB)
-    );
-
-    ALU alu_inst(
-        .A(RD1),
-        .B(SrcB),
-        .alu_control(alu_ctrl),
-        .Result(ALU_Out),
-        .Zero(Zero)
-    );
-
-    Controller controller_inst(
-        .Op(Instr[6:0]),
-        .funct3(Instr[14:12]),
-        .funct7(Instr[31:25]),
-        .Zero(Zero),
-        .rf_we(RegWrite),
-        .sel_ext(sel_ext),
-        .sel_alu_src_b(ALUSrcB),
-        .dmem_we(MemWrite),
-        .sel_result(sel_wb),
-        .PCSrc(PCSrc),
-        .alu_control(alu_ctrl)
-    );
-
-    Data_Memory dmem_inst(
+    datapath DP (
         .clk(clk),
         .rst(rst),
-        .WE(MemWrite),
-        .WD(RD2),
-        .A(ALU_Out),
-        .RD(Mem_Data)
+        .sel_result(sel_result),
+        .we_rf(we_rf),
+        .sel_ext(sel_ext),
+        .alu_control(alu_control),
+        .zero(zero),
+        .instr(instr),
+        .addr(addr),
+        .write_data(write_data),
+        .read_data(read_data),
+        .we_ir(we_ir),
+        .we_pc(we_pc_to_dp), 
+        .sel_mem_addr(sel_mem_addr),
+        .sel_alu_src_a(sel_alu_src_a),
+        .sel_alu_src_b(sel_alu_src_b)
     );
-    assign WD3 = (sel_wb == `WB_ALU) ? ALU_Out :
-                 (sel_wb == `WB_MEM) ? Mem_Data :
-                 (sel_wb == `WB_PC4) ? (PC_Current + 4) : ALU_Out;
 
 endmodule

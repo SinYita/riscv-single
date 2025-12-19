@@ -2,7 +2,7 @@
 
 module Sign_Extend(Ins, sel_ext, ImmExt);
     input [2:0]  sel_ext;
-    input [31:0] Ins;
+    input [31:7] Ins;
     output reg [31:0] ImmExt;
 
     always@(*) begin

@@ -9,9 +9,9 @@ module ALU_Decoder(
 
     always @(*) begin
         case (ALUOp)
-            2'b00: alu_control = `ALU_ADD; 
+            `ALUOP_LOAD_STORE: alu_control = `ALU_ADD; 
 
-            2'b01: begin
+            `ALUOP_RTYPE_BRANCH: begin
                 case (funct3)
                     3'b000: begin
                         if (funct7[5])
@@ -31,7 +31,7 @@ module ALU_Decoder(
             end
 
             // 10: I-type Arithmetic
-            2'b10: begin
+            `ALUOP_ITYPE: begin
                 case (funct3)
                     3'b000: alu_control = `ALU_ADD;
                     3'b100: alu_control = `ALU_XOR;
@@ -45,7 +45,7 @@ module ALU_Decoder(
                 endcase
             end
 
-            2'b11: begin
+            `ALUOP_LUI: begin
                 alu_control = `ALU_COPY_B; 
             end
 
