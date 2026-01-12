@@ -21,7 +21,7 @@
 
 // --- ALUOp from Main Decoder to ALU Decoder (2-bit) ---
 `define ALUOP_LOAD_STORE        2'b00 
-`define ALUOP_RTYPE_BRANCH      2'b01 
+`define ALUOP_BRANCH            2'b01 
 `define ALUOP_ITYPE             2'b10 
 `define ALUOP_LUI               2'b11 
 

@@ -1,96 +1,104 @@
 `include "define.v"
 
 module Op_Decoder(
-    input            Zero,
     input      [6:0] Op,
-    output reg       rf_we,          
-    output reg [2:0] sel_ext,       
-    output reg       sel_alu_src_b, 
-    output reg       dmem_we,        
-    output reg [1:0] sel_result,    
-    output reg       PCSrc,          
-    output reg [1:0] ALUOp         
+    output reg       RegWrite,
+    output reg [2:0] ImmSrc,
+    output reg       ALUSrc,
+    output reg       MemWrite,
+    output reg [1:0] ResultSrc,
+    output reg       Branch,
+    output reg [1:0] ALUOp,
+    output reg       Jump
 );
 
     always @* begin
-
-        rf_we         = `NO;
-        sel_ext       = `Ext_ImmI;
-        sel_alu_src_b = `ALU_REG;
-        dmem_we       = 1'b0;
-        sel_result    = `WB_ALU;  
-        ALUOp         = `ALUOP_LOAD_STORE;
-        PCSrc         = `PC4;
+        // Default values
+        RegWrite   = `NO;
+        ImmSrc     = `Ext_ImmI;
+        ALUSrc     = `ALU_REG;
+        MemWrite   = 1'b0;
+        ResultSrc  = `WB_ALU;
+        ALUOp      = `ALUOP_LOAD_STORE;
+        Branch     = 1'b0;
+        Jump       = 1'b0;
 
         case (Op)
             `OPCODE_LW: begin 
-                rf_we         = `YES;
-                sel_ext       = `Ext_ImmI;
-                sel_alu_src_b = `ALU_IMM;
-                dmem_we       = 1'b0;
-                sel_result    = `WB_MEM;  
-                ALUOp         = `ALUOP_LOAD_STORE; 
-                PCSrc         = `PC4;
+                RegWrite   = `YES;
+                ImmSrc     = `Ext_ImmI;
+                ALUSrc     = `ALU_IMM;
+                MemWrite   = 1'b0;
+                ResultSrc  = `WB_MEM;
+                ALUOp      = `ALUOP_LOAD_STORE;
+                Branch     = 1'b0;
+                Jump       = 1'b0;
             end
 
             `OPCODE_SW: begin
-                rf_we         = `NO;
-                sel_ext       = `Ext_ImmS;
-                sel_alu_src_b = `ALU_IMM;
-                dmem_we       = 1'b1;
-                sel_result    = `WB_ALU; 
-                ALUOp         = `ALUOP_LOAD_STORE;
-                PCSrc         = `PC4;
+                RegWrite   = `NO;
+                ImmSrc     = `Ext_ImmS;
+                ALUSrc     = `ALU_IMM;
+                MemWrite   = 1'b1;
+                ResultSrc  = `WB_ALU;
+                ALUOp      = `ALUOP_LOAD_STORE;
+                Branch     = 1'b0;
+                Jump       = 1'b0;
             end
 
             `OPCODE_RTP: begin // R-type
-                rf_we         = `YES;
-                sel_ext       = `Ext_ImmI; 
-                sel_alu_src_b = `ALU_REG;
-                dmem_we       = 1'b0;
-                sel_result    = `WB_ALU;  
-                ALUOp         = `ALUOP_RTYPE_BRANCH; 
-                PCSrc         = `PC4;
+                RegWrite   = `YES;
+                ImmSrc     = `Ext_ImmI;
+                ALUSrc     = `ALU_REG;
+                MemWrite   = 1'b0;
+                ResultSrc  = `WB_ALU;
+                ALUOp      = `ALUOP_ITYPE;
+                Branch     = 1'b0;
+                Jump       = 1'b0;
             end
 
             `OPCODE_ITP: begin // I-type Arithmetic
-                rf_we         = `YES;
-                sel_ext       = `Ext_ImmI;
-                sel_alu_src_b = `ALU_IMM;
-                dmem_we       = 1'b0;
-                sel_result    = `WB_ALU;  
-                ALUOp         = `ALUOP_ITYPE;
-                PCSrc         = `PC4;
+                RegWrite   = `YES;
+                ImmSrc     = `Ext_ImmI;
+                ALUSrc     = `ALU_IMM;
+                MemWrite   = 1'b0;
+                ResultSrc  = `WB_ALU;
+                ALUOp      = `ALUOP_ITYPE;
+                Branch     = 1'b0;
+                Jump       = 1'b0;
             end
 
             `OPCODE_BEQ: begin
-                rf_we         = `NO;
-                sel_ext       = `Ext_ImmB;
-                sel_alu_src_b = `ALU_REG;
-                dmem_we       = 1'b0;
-                sel_result    = `WB_ALU;
-                ALUOp         = `ALUOP_RTYPE_BRANCH;
-                PCSrc         = Zero ? `PCI : `PC4;
+                RegWrite   = `NO;
+                ImmSrc     = `Ext_ImmB;
+                ALUSrc     = `ALU_REG;
+                MemWrite   = 1'b0;
+                ResultSrc  = `WB_ALU;
+                ALUOp      = `ALUOP_BRANCH;
+                Branch     = 1'b1;
+                Jump       = 1'b0;
             end
 
             `OPCODE_JAL: begin 
-                rf_we         = `YES;
-                sel_ext       = `Ext_ImmJ;
-                sel_alu_src_b = `ALU_REG;
-                dmem_we       = 1'b0;
-                sel_result    = `WB_PC4; 
-                ALUOp         = `ALUOP_LOAD_STORE;
-                PCSrc         = `PCI;  
+                RegWrite   = `YES;
+                ImmSrc     = `Ext_ImmJ;
+                ALUSrc     = `ALU_REG;
+                MemWrite   = 1'b0;
+                ResultSrc  = `WB_PC4;
+                ALUOp      = `ALUOP_LOAD_STORE;
+                Branch     = 1'b0;
+                Jump       = 1'b1;
             end
 
             `OPCODE_LUI: begin 
-                rf_we         = `YES;
-                sel_ext       = `Ext_ImmU;
-                sel_alu_src_b = `ALU_IMM;
-                dmem_we       = 1'b0;
-                sel_result    = `WB_ALU;  
-                ALUOp         = `ALUOP_LUI; 
-                PCSrc         = `PC4;
+                RegWrite   = `YES;
+                ImmSrc     = `Ext_ImmU;
+                ALUSrc     = `ALU_IMM;
+                MemWrite   = 1'b0;
+                ResultSrc  = `WB_ALU;
+                ALUOp      = `ALUOP_LUI;
+                Branch     = 1'b0;
+                Jump       = 1'b0;
             end
 
             default: ;

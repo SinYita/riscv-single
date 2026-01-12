@@ -1,7 +1,15 @@
-module Mux(in_1,in_2,sel,out);
-    input[31:0] in_1,in_2;
-    input sel;
-    output [31:0] out;
-    assign out = (~sel) ? in_1 : in_2;
-    // 0 for in_1, 1 for in_2
+module mux2 #(parameter WIDTH = 8)
+             (input  wire [WIDTH-1:0] d0, d1, 
+              input  wire             s, 
+              output wire [WIDTH-1:0] y);
+
+  assign y = s ? d1 : d0; 
+endmodule
+
+module mux3 #(parameter WIDTH = 8)
+             (input  wire [WIDTH-1:0] d0, d1, d2,
+              input  wire [1:0]       s, 
+              output wire [WIDTH-1:0] y);
+
+  assign y = s[1] ? d2 : (s[0] ? d1 : d0); 
 endmodule
