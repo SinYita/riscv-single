@@ -1,64 +1,23 @@
-.text
-.global _start
-
-_start:
-    # ===== I-TYPE IMMEDIATE OPERATIONS =====
-    addi x1, x0, 10          # x1 = 10
-    addi x2, x0, 5           # x2 = 5  
-    addi x3, x0, 15          # x3 = 15
-    
-    # ===== R-TYPE ARITHMETIC OPERATIONS =====
-    add  x4, x1, x2          # x4 = 10 + 5 = 15
-    sub  x5, x1, x2          # x5 = 10 - 5 = 5
-    
-    # ===== R-TYPE LOGICAL OPERATIONS =====
-    and  x6, x1, x2          # x6 = 10 & 5 = 0
-    or   x7, x1, x2          # x7 = 10 | 5 = 15
-    xor  x8, x1, x2          # x8 = 10 ^ 5 = 15
-    
-    # ===== I-TYPE LOGICAL OPERATIONS =====
-    andi x9, x3, 7           # x9 = 15 & 7 = 7
-    ori  x10, x1, 8          # x10 = 10 | 8 = 10 
-    xori x11, x3, 7          # x11 = 15 ^ 7 = 8
-    
-    # ===== SHIFT OPERATIONS =====
-    slli x12, x1, 1          # x12 = 10 << 1 = 20
-    srli x13, x3, 1          # x13 = 15 >> 1 = 7 
-    srai x14, x1, 1          # x14 = 10 >> 1 = 5
-    
-    # ===== COMPARISON OPERATIONS =====
-    slt  x15, x2, x1         # x15 = 1 if 5 < 10 = 1
-    sltu x16, x1, x2         # x16 = 1 if 10 < 5 (unsigned) = 0
-    slti x17, x1, 15         # x17 = 1 if 10 < 15 = 1
-    sltiu x18, x2, 3         # x18 = 1 if 5 < 3 (unsigned) = 0
-    
-    # ===== U-TYPE OPERATIONS =====
-    lui  x19, 0x1            # x19 = 0x1000
-    
-    # ===== MEMORY OPERATIONS =====
-    sw   x4, 100(x1)         # Store x4 (15) at mem[100+10] = mem[110]
-    sw   x5, 104(x2)         # Store x5 (5) at mem[104+5] = mem[109] 
-    lw   x20, 100(x1)        # Load x20 from mem[110] (should be 15)
-    lw   x21, 104(x2)        # Load x21 from mem[109] (should be 5)
-    
-    # ===== BRANCH OPERATION (BEQ only) =====
-    beq  x20, x4, success    # Should branch (15 == 15)
-    addi x22, x0, 999        # Should be skipped
-    addi x21, x0, 888        # Should be skipped
-    
-success:
-    addi x22, x0, 42         # x22 = 42 
-    
-    # ===== JUMP OPERATION =====
-    jal  x23, function       
-    addi x24, x0, 100        # x24 = 100
-    
-    sw   x22, 8(x19)        # x22 =  42
-    sw   x23, 12(x19)       # x23 = 116
-    sw   x24, 16(x19)       # x24 = 100
-    
-end_loop:
-    beq  x0, x0, end_loop    # Loop forever (BEQ x0,x0 always true)
-
-function:
-    addi x25, x0, 200        # x25 = 200 (function executed flag)
+#       RISC-V Assembly         Description               Address   Machine Code
+main:   addi x2, x0, 5          # x2 = 5                  0         00500113   
+        addi x3, x0, 12         # x3 = 12                 4         00C00193
+ 	lui  x6, 0x12345        # x6 = 0x12345000         8         12345337
+        addi x7, x3, -9         # x7 = (12 - 9) = 3       8         FF718393
+        or   x4, x7, x2         # x4 = (3 OR 5) = 7       C         0023E233
+        and  x5, x3, x4         # x5 = (12 AND 7) = 4     10        0041F2B3
+        add  x5, x5, x4         # x5 = (4 + 7) = 11       14        004282B3
+        beq  x5, x7, end        # shouldn't be taken      18        02728863
+        slt  x4, x3, x4         # x4 = (12 < 7) = 0       1C        0041A233
+        beq  x4, x0, around     # should be taken         20        00020463
+        addi x5, x0, 0          # shouldn't happen        24        00000293
+around: slt  x4, x7, x2         # x4 = (3 < 5)  = 1       28        0023A233
+        add  x7, x4, x5         # x7 = (1 + 11) = 12      2C        005203B3
+        sub  x7, x7, x2         # x7 = (12 - 5) = 7       30        402383B3
+        sw   x7, 84(x3)         # [96] = 7                34        0471AA23 
+        lw   x2, 96(x0)         # x2 = [96] = 7           38        06002103 
+        add  x9, x2, x5         # x9 = (7 + 11) = 18      3C        005104B3
+        jal  x3, end            # jump to end, x3 = 0x44  40        008001EF
+        addi x2, x0, 1          # shouldn't happen        44        00100113
+end:    add  x2, x2, x9         # x2 = (7 + 18)  = 25     48        00910133
+        sw   x2, 0x20(x3)       # mem[100] = 25           4C        0221A023 
+done:   beq  x2, x2, done       # infinite loop           50        00210063

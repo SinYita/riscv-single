@@ -112,7 +112,6 @@ dut.RF.Register[6], dut.RF.Register[7], dut.RF.Register[8], dut.RF.Register[9]);
         $finish;
     end
 
-    // 波形记录
     initial begin
         $dumpfile("rv_pl_sim.vcd");
         $dumpvars(0, rv_pl_tb);
